@@ -689,7 +689,7 @@ class Index extends React.Component {
                                     <thead>
                                     <tr>
                                         <th>#</th>
-                                        <th>Name</th>
+                                        <th>Names</th>
                                         <th>Position</th>
                                         <th>Office</th>
                                         <th>Age</th>
