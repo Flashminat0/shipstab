@@ -1,6 +1,6 @@
 export default {
     defaultPath: '/dashboard',
-    basename: '/ship-stab', // only at build time to set, like ///able-pro/react/default
+    basename: '/able-pro/react/default', // only at build time to set, like ///able-pro/react/default
     layout: 'horizontal', // vertical, horizontal
     subLayout: '', // horizontal-2
     collapseMenu: false, // mini-menu
