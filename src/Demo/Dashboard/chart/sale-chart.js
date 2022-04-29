@@ -15,16 +15,16 @@ export default {
             curve: 'smooth'
         },
         xaxis: {
-            type: 'datetime',
-            categories: ['1/11/2019', '2/11/2019', '3/11/2019', '4/11/2019', '5/11/2019', '6/11/2019', '7/11/2019'],
+            type: 'int',
+            categories: [-40, -30, -20, -10, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
         },
-        colors: ['#4680ff', '#9ccc65', "#ffba57", "#ff5252"],
+        colors: ['#9ccc65'],
         fill: {
             type: 'solid',
         },
         markers: {
             size: 5,
-            colors: ['#4680ff', '#9ccc65', "#ffba57", "#ff5252"],
+            colors: ['#9ccc65'],
             opacity: 0.9,
             strokeWidth: 2,
             hover: {
@@ -35,21 +35,12 @@ export default {
             borderColor: '#e2e5e885',
         },
         yaxis: {
-            min: 10,
-            max: 70,
+            min: -2,
+            max: 4,
         }
     },
     series: [{
-        name: 'Trial',
-        data: [20, 50, 30, 60, 30, 50, 40]
-    }, {
         name: 'Bronze',
-        data: [40, 20, 50, 15, 40, 65, 20]
-    }, {
-        name: 'Gold',
-        data: [64, 40, 20, 30, 20, 40, 65]
-    }, {
-        name: 'Platinum',
-        data: [30, 25, 40, 15, 20, 15, 30]
+        data: [-1.159, -1.418, -1.191, -0.524, 0, 0.524, 1.191, 1.417, 1.159, 1.417, 1.159, 0.448, -0.497, -1.53, -2.567, -3.546]
     }]
 }
