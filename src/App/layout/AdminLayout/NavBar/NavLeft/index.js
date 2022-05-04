@@ -12,7 +12,7 @@ class NavLeft extends Component {
         return (
             <Aux>
                 <ul className="navbar-nav mr-auto">
-                    <li className="nav-item"><NavSearch/></li>
+                    {/* <li className="nav-item"><NavSearch/></li> */}
                 </ul>
             </Aux>
         );

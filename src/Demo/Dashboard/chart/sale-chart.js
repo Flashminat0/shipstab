@@ -1,5 +1,5 @@
 export default {
-    height: 250,
+    height: 150,
     type: 'line',
     options: {
         chart: {
@@ -17,26 +17,27 @@ export default {
         xaxis: {
             type: 'int',
             categories: [-40, -30, -20, -10, 0, 10, 20, 30, 40, 50, 60, 70, 80, 90],
+            size: 3
         },
         colors: ['#9ccc65'],
         fill: {
             type: 'solid',
         },
         markers: {
-            size: 5,
+            size: 3,
             colors: ['#9ccc65'],
             opacity: 0.9,
             strokeWidth: 2,
             hover: {
-                size: 7,
+                size: 5,
             }
         },
         grid: {
             borderColor: '#e2e5e885',
         },
         yaxis: {
-            min: -2,
-            max: 4,
+            min: -4,
+            max: 2,
         }
     },
     series: [{

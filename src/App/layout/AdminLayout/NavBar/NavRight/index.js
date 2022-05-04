@@ -19,7 +19,7 @@ class NavRight extends Component {
             <Aux>
                 <ul className="navbar-nav ml-auto">
                     <li>
-                        <Dropdown alignRight={!this.props.rtlLayout}>
+                        {/* <Dropdown alignRight={!this.props.rtlLayout}>
                             <Dropdown.Toggle variant={'link'} id="dropdown-basic">
                                 <i className="feather icon-bell icon"/>
                             </Dropdown.Toggle>
@@ -83,7 +83,7 @@ class NavRight extends Component {
                                     <a href={DEMO.BLANK_LINK}>show all</a>
                                 </div>
                             </Dropdown.Menu>
-                        </Dropdown>
+                        </Dropdown> */}
                     </li>
                     <li>
                         <Dropdown alignRight={!this.props.rtlLayout} className="drp-user">

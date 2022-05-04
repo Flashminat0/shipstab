@@ -86,8 +86,10 @@ const ExtensionImageCropper = React.lazy(() => import('./Demo/Extension/ImageCro
 
 const OtherSamplePage = React.lazy(() => import('./Demo/Other/SamplePage'));
 
+const DashboardPage = React.lazy(() => import('./Views/Dashboard'));
+
 const routes = [
-    { path: '/dashboard', exact: true, name: 'Analytics', component: OtherSamplePage },
+    { path: '/dashboard', exact: true, name: 'Analytics', component: DashboardPage },
     
     { path: '/stability', exact: true, name: 'Widget Statistic', component: WdgtStatistic },
 
