@@ -1,5 +1,5 @@
 export default {
-    height: 150,
+    height: 300,
     type: 'line',
     options: {
         chart: {

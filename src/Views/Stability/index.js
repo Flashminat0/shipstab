@@ -120,11 +120,11 @@ class Index extends React.Component {
                     </Col>
                     <Col xl={6}>
                         <Card>
-                            <Card.Body style={{ 'min-height': '462px' }}>
+                            <Card.Body style={{ 'min-height': '630px' }}>
                                 {listOpen &&
                                     <Tabs defaultActiveKey="tank" className="mb-3">
                                         <Tab eventKey="tank" title="Tank">
-                                            <Table size="sm" striped hover responsive bordered className="table table-condensed" style={{ height: '238px', 'overflow-y': 'scroll', width: '100%', display: 'block' }}>
+                                            <Table size="sm" striped hover responsive bordered className="table table-condensed" style={{ height: '406px', 'overflow-y': 'scroll', width: '100%', display: 'block' }}>
                                                 <thead>
                                                     <tr>
                                                         <th>Tank Name</th>
@@ -321,7 +321,7 @@ class Index extends React.Component {
                                             </div>
                                         </Tab>
                                         <Tab eventKey="fixedWeights" title="Fixed Weights">
-                                            <Table size="sm" striped hover responsive bordered className="table table-condensed" style={{ height: '238px', 'overflow-y': 'scroll', width: '100%', display: 'block' }}>
+                                            <Table size="sm" striped hover responsive bordered className="table table-condensed" style={{ height: '406px', 'overflow-y': 'scroll', width: '100%', display: 'block' }}>
                                                 <thead>
                                                     <tr>
                                                         <th>Item Name</th>
@@ -379,7 +379,7 @@ class Index extends React.Component {
                         </Card>
                     </Col>
                     <Col xl={6}>
-                        <Card style={{ 'min-height': '462px' }}>
+                        <Card style={{ 'min-height': '630px' }}>
                             {isSolve &&
                             <Card.Header>
                                 <h5>GZ Graph</h5>
