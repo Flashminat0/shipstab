@@ -138,6 +138,34 @@ const reducer = (state = initialState, action) => {
                 headerFixedLayout: initialState.headerFixedLayout,
                 boxLayout: initialState.boxLayout
             };
+        case actionTypes.GET_TANK_LIST:
+                return {
+                  ...state,
+                  tankList: action.tankList
+            }
+        case actionTypes.GET_TANK_DETAILS:
+                return {
+                  ...state,
+                  getTankDetails: action.getTankDetails
+            }
+        case actionTypes.SAVE_RECORD_STATUS:
+                return {
+                  ...state,
+                  recordSaveStatus: action.recordSaveStatus
+            }
+        case actionTypes.UPDATE_RECORD_STATUS:
+                return {
+                  ...state,
+                  recordUpdateStatus: action.recordUpdateStatus
+            }
+        case actionTypes.CLEAR_ALL_TANK_DATA:
+                return {
+                  ...state,
+                  getTankDetails: null,
+                  tankList: null,
+                  recordSaveStatus: null,
+                  recordUpdateStatus: null,
+            }
         default:
             return state;
     }

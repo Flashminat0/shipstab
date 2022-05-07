@@ -1,4 +1,5 @@
 import React from 'react';
+import { connect } from "react-redux";
 import Chart from "react-apexcharts";
 import {
     Row,
@@ -12,13 +13,16 @@ import {
     Tab,
     Alert
 } from 'react-bootstrap';
+import PerfectScrollbar from 'react-perfect-scrollbar';
 
 import Aux from "../../hoc/_Aux";
 
 import saleChart from '../../Demo/Dashboard/chart/sale-chart';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-
+import DataTable from 'react-data-table-component';
+import isEmpty from '../../util/isEmpty';
+import { getAllTankList } from "../../store/api/loading_tank";
 import $ from 'jquery';
 window.jQuery = $;
 window.$ = $;
@@ -26,6 +30,72 @@ global.jQuery = $;
 class Index extends React.Component {
     constructor() {
         super();
+
+        this.state = {
+            editingKey: '',
+            form: '',
+            data: []
+        }
+
+        this.columns = [
+            {
+                name: 'Tank Name',
+                selector: 'tankName',
+                minWidth: '150px'
+            },
+            {
+                name: 'Max Volume',
+                selector: 'maxVolume',
+                minWidth: '20px'
+            },
+            {
+                name: 'Density',
+                selector: 'density',
+                maxWidth: '20px'
+            },
+            {
+                name: 'Sounding',
+                selector: 'sounding',
+                maxWidth: '20px'
+            },
+            {
+                name: 'Fil',
+                selector: 'fil',
+                maxWidth: '20px'
+            },
+            {
+                name: 'Weight',
+                selector: 'weight',
+                minWidth: '5px',
+                cell: row => {
+                  return (
+                    <div>
+                         {row.weight != "" ? <input type='text' value={row.weight} name='weight' onChange={(e) => this.handleChange(e, 'form', row.tankName)} className='type-2' style={{ display:'block', width:'100%', margin:'0 0', padding:'5px'}}/> : ''}
+                    </div>
+                  )
+                }
+            },
+            {
+                name: 'Location',
+                selector: 'location',
+                minWidth: '5px'
+            },
+            {
+                name: 'LCG',
+                selector: 'LCG',
+                Width: '20px'
+            },
+            {
+                name: 'TCG',
+                selector: 'TCG',
+                maxWidth: '5px'
+            },
+            {
+                name: 'VCG',
+                selector: 'VCG',
+                maxWidth: '20px'
+            }
+        ]
     }
 
     state = {
@@ -33,6 +103,44 @@ class Index extends React.Component {
         dataObj: '',
         isSolve: false
     };
+
+    componentWillReceiveProps(nextProps) {
+        if (!isEmpty(nextProps.tankList)) {
+            this.setState({
+                data: nextProps.tankList,
+            });
+        } else {
+
+        }
+    }
+
+    isEditing = (record) => {
+        if (record.id === this.state.editingKey) {
+          return true
+        }
+    }
+
+    edit = (key) => {
+        this.setState({ editingKey: key })
+      }
+
+    handleChange = (e, form, filed) => {
+
+        
+        // this.edit(filed);
+
+        //   this.setState({
+        //     [form]: {
+        //       [e.target.name]: e.target.value
+        //     }
+        //   })
+
+        this.state.data.find(c => c.tankName === filed).weight = e.target.value
+ 
+        this.setState({
+            data: this.state.data
+        })
+      }
 
     sweetAlertHandler = (alert) => {
         const MySwal = withReactContent(Swal);
@@ -62,6 +170,9 @@ class Index extends React.Component {
         e.preventDefault();
         
         if(this.state.dataObj != ''){
+
+            this.props.getAllTankList();
+
             this.setState({
                 listOpen: true
             });
@@ -79,8 +190,28 @@ class Index extends React.Component {
         });
     }
 
+    handleSave = () => {
+        console.log(this.state.data);
+
+        this.sweetAlertHandler({title: 'Saved Successfully!', type: 'success', text: 'Saved Tank Weight Values!'})
+    }
+
     render() {
         const { listOpen, isSolve } = this.state;
+
+        const columns = this.columns.map(col => {
+            if (!col.editable) {
+                return col
+            }
+            return {
+                ...col,
+                onCell: record => ({
+                    record,
+                    editing: this.isEditing(record)
+                })
+            }
+        })
+
         return (
             <Aux>
                 <Row>
@@ -120,208 +251,33 @@ class Index extends React.Component {
                     </Col>
                     <Col xl={6}>
                         <Card>
-                            <Card.Body style={{ 'min-height': '630px' }}>
+                            <Card.Body style={{ minHeight: '630px' }}>
                                 {listOpen &&
                                     <Tabs defaultActiveKey="tank" className="mb-3">
                                         <Tab eventKey="tank" title="Tank">
-                                            <Table size="sm" striped hover responsive bordered className="table table-condensed" style={{ height: '406px', 'overflow-y': 'scroll', width: '100%', display: 'block' }}>
-                                                <thead>
-                                                    <tr>
-                                                        <th>Tank Name</th>
-                                                        <th>Max Volume</th>
-                                                        <th>Density</th>
-                                                        <th>Sounding</th>
-                                                        <th>Fil</th>
-                                                        <th>Weight</th>
-                                                        <th>Location</th>
-                                                        <th>LCG</th>
-                                                        <th>TCG</th>
-                                                        <th>VCG</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <th>Fresh Water</th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>No. 1 FW Tank (P)</th>
-                                                        <th>500</th>
-                                                        <th>1</th>
-                                                        <th></th>
-                                                        <th>100</th>
-                                                        <th>500</th>
-                                                        <th>P</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>No. 1 FW Tank (S)</th>
-                                                        <th>500</th>
-                                                        <th>1</th>
-                                                        <th></th>
-                                                        <th>100</th>
-                                                        <th>500</th>
-                                                        <th>P</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>No. 2 FW Tank (P)</th>
-                                                        <th>300</th>
-                                                        <th>1</th>
-                                                        <th></th>
-                                                        <th>100</th>
-                                                        <th>300</th>
-                                                        <th>P</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>No. 2 FW Tank (S)</th>
-                                                        <th>300</th>
-                                                        <th>1</th>
-                                                        <th></th>
-                                                        <th>100</th>
-                                                        <th>300</th>
-                                                        <th>P</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>No. 3 FW Tank (P)</th>
-                                                        <th>300</th>
-                                                        <th>1</th>
-                                                        <th></th>
-                                                        <th>100</th>
-                                                        <th>400</th>
-                                                        <th>P</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>No. 3 FW Tank (S)</th>
-                                                        <th>300</th>
-                                                        <th>1</th>
-                                                        <th></th>
-                                                        <th>100</th>
-                                                        <th>400</th>
-                                                        <th>P</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                    </tr>
-
-                                                    <tr>
-                                                        <th>Ballast</th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                        <th></th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>No. 1 Ballast Tank (P)</th>
-                                                        <th>500</th>
-                                                        <th>1</th>
-                                                        <th></th>
-                                                        <th>100</th>
-                                                        <th>500</th>
-                                                        <th>P</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>No. 1 Ballast Tank (S)</th>
-                                                        <th>500</th>
-                                                        <th>1</th>
-                                                        <th></th>
-                                                        <th>100</th>
-                                                        <th>500</th>
-                                                        <th>P</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>No. 2 Ballast Tank (P)</th>
-                                                        <th>300</th>
-                                                        <th>1</th>
-                                                        <th></th>
-                                                        <th>100</th>
-                                                        <th>300</th>
-                                                        <th>P</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>No. 2 Ballast Tank (S)</th>
-                                                        <th>300</th>
-                                                        <th>1</th>
-                                                        <th></th>
-                                                        <th>100</th>
-                                                        <th>300</th>
-                                                        <th>P</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>No. 3 Ballast Tank (P)</th>
-                                                        <th>300</th>
-                                                        <th>1</th>
-                                                        <th></th>
-                                                        <th>100</th>
-                                                        <th>400</th>
-                                                        <th>P</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>No. 3 Ballast Tank (S)</th>
-                                                        <th>300</th>
-                                                        <th>1</th>
-                                                        <th></th>
-                                                        <th>100</th>
-                                                        <th>400</th>
-                                                        <th>P</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                        <th>0</th>
-                                                    </tr>
-                                                </tbody>
-                                            </Table>
-
+                                            <DataTable
+                                                noHeader
+                                                responsive
+                                                {...this.state}
+                                                columns={columns}
+                                                paginationPerPage={2}
+                                                className='react-dataTable'
+                                                //sortIcon={<ChevronDown size={10} />}
+                                                //paginationDefaultPage={this.state.currentPage + 1}
+                                                fixedHeader
+                                                fixedHeaderScrollHeight="406px"
+                                                data={this.state.data}
+                                            />
                                             <h5 className='mt-3'>Loading Condtion</h5>
                                             <hr />
                                             <div className="form-group fill">
-                                                <Button variant='outline-primary' size='sm' className='mr-1'>Save</Button>
+                                                <Button variant='outline-primary' size='sm' className='mr-1' onClick={this.handleSave}>Save</Button>
                                                 <Button variant='outline-secondary' size='sm' className='mr-1'>Open</Button>
                                                 <Button variant='primary' size='sm' onClick={this.handleSolve}>Solve</Button>
                                             </div>
                                         </Tab>
                                         <Tab eventKey="fixedWeights" title="Fixed Weights">
-                                            <Table size="sm" striped hover responsive bordered className="table table-condensed" style={{ height: '406px', 'overflow-y': 'scroll', width: '100%', display: 'block' }}>
+                                            <Table size="sm" striped hover responsive bordered className="table table-condensed" style={{ height: '406px', overflowY: 'scroll', width: '100%', display: 'block' }}>
                                                 <thead>
                                                     <tr>
                                                         <th>Item Name</th>
@@ -359,7 +315,7 @@ class Index extends React.Component {
                                             <h5 className='mt-3'>Loading Condtion</h5>
                                             <hr />
                                             <div className="form-group fill">
-                                                <Button variant='outline-primary' size='sm' className='mr-1'>Save</Button>
+                                                <Button variant='outline-primary' size='sm' className='mr-1' onClick={this.handleSave}>Save</Button>
                                                 <Button variant='outline-secondary' size='sm' className='mr-1'>Open</Button>
                                                 <Button variant='primary' size='sm' className='mr-3' onClick={this.handleSolve}>Solve</Button>
 
@@ -372,14 +328,14 @@ class Index extends React.Component {
                                 }
                                 {!listOpen &&
                                     <Alert variant="warning" className='mb-auto'>
-                                        No Data to display
+                                        There are no records to display
                                     </Alert>
                                 }
                             </Card.Body>
                         </Card>
                     </Col>
                     <Col xl={6}>
-                        <Card style={{ 'min-height': '630px' }}>
+                        <Card style={{ minHeight: '630px' }}>
                             {isSolve &&
                             <Card.Header>
                                 <h5>GZ Graph</h5>
@@ -391,7 +347,7 @@ class Index extends React.Component {
                                 <Chart {...saleChart} />
                                 <Row>
                                     <Col xl={6}>
-                                        <Table size="sm" striped hover responsive bordered className="table table-condensed" style={{ height: '180px', 'overflow-y': 'scroll', width: '100%', display: 'block' }}>
+                                        <Table size="sm" striped hover responsive bordered className="table table-condensed" style={{ height: '180px', overflowY: 'scroll', width: '100%', display: 'block' }}>
                                             <thead>
                                                 <tr>
                                                     <th>LCG</th>
@@ -434,7 +390,7 @@ class Index extends React.Component {
                                         </Table>
                                     </Col>
                                     <Col xl={6}>
-                                        <Table size="sm" striped hover responsive bordered className="table table-condensed" style={{ height: '180px', 'overflow-y': 'scroll', width: '100%', display: 'block' }}>
+                                        <Table size="sm" striped hover responsive bordered className="table table-condensed" style={{ height: '180px', overflowY: 'scroll', width: '100%', display: 'block' }}>
                                             <thead>
                                                 <tr>
                                                     <th>LCG</th>
@@ -481,7 +437,7 @@ class Index extends React.Component {
                                 }
                                 {!isSolve &&
                                     <Alert variant="warning" className='mb-auto'>
-                                        No Data to display
+                                       There are no records to display
                                     </Alert>
                                 }
                             </Card.Body>
@@ -500,4 +456,12 @@ class Index extends React.Component {
     }
 }
 
-export default Index;
+const mapStateToProps = state => ({
+    tankList: state.tankList,
+});
+
+const mapDispatchToProps = dispath => ({
+    getAllTankList: (tankList) => dispath(getAllTankList(tankList)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps) (Index);
