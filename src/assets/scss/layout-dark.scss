@@ -363,7 +363,7 @@ body.able-pro-dark {
       .profile-notification {
         .pro-head {
           color: $dark-layout-font;
-          background: lighten($dark-layout, 15%);
+          background: darken($dark-layout, 75%);
 
           .dud-logout {
             color: $dark-layout-font;

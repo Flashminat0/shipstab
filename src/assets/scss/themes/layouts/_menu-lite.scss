@@ -3213,7 +3213,7 @@ $style-block-width: 400px;
                 .profile-notification {
                     .pro-head {
                         color: #fff;
-                        background: nth($color-header-color,$i);
+                        background: darken(#373a3c,10%);
 
                         .dud-logout {
                             color: #fff;
@@ -3470,7 +3470,7 @@ body.box-layout {
 
     &.dropdown-menu-right {
         transform-origin: 100% 0;
-        right: 0;
+        right: 0 !important;
         left: auto !important;
     }
 

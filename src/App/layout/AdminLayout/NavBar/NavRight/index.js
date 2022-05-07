@@ -86,11 +86,11 @@ class NavRight extends Component {
                         </Dropdown> */}
                     </li>
                     <li>
-                        <Dropdown alignRight={!this.props.rtlLayout} className="drp-user">
+                        <Dropdown className="drp-user">
                             <Dropdown.Toggle variant={'link'} id="dropdown-basic">
                                 <i className="icon feather icon-user"/>
                             </Dropdown.Toggle>
-                            <Dropdown.Menu alignRight className="profile-notification">
+                            <Dropdown.Menu className="profile-notification dropdown-menu-right" style={{border: "unset"}}>
                                 <div className="pro-head">
                                     <img src={Avatar1} className="img-radius" alt="User Profile"/>
                                     <span>John Doe</span>
