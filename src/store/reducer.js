@@ -143,6 +143,11 @@ const reducer = (state = initialState, action) => {
                   ...state,
                   tankList: action.tankList
             }
+        case actionTypes.GET_LC_LIST:
+                return {
+                  ...state,
+                  lcList: action.lcList
+            }
         case actionTypes.GET_TANK_DETAILS:
                 return {
                   ...state,
@@ -163,8 +168,19 @@ const reducer = (state = initialState, action) => {
                   ...state,
                   getTankDetails: null,
                   tankList: null,
+                  lcList: null,
                   recordSaveStatus: null,
                   recordUpdateStatus: null,
+            }
+        case actionTypes.GET_VESSEL_LIST:
+                return {
+                  ...state,
+                  vesselList: action.vesselList
+            }
+        case actionTypes.CLEAR_ALL_VESSEL_DATA:
+                return {
+                  ...state,
+                  vesselList: null
             }
         default:
             return state;

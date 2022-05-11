@@ -11,7 +11,9 @@ import {
     Table,
     Tabs,
     Tab,
-    Alert
+    Alert,
+    Modal,
+    Form
 } from 'react-bootstrap';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 
@@ -22,7 +24,8 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import DataTable from 'react-data-table-component';
 import isEmpty from '../../util/isEmpty';
-import { getAllTankList } from "../../store/api/loading_tank";
+import { getAllTankList, saveTankDetail, getAllLCList, getAllSavedTankData, updateTankDetail } from "../../store/api/loading_tank";
+import { getAllVesselList } from "../../store/api/vessel";
 import $ from 'jquery';
 window.jQuery = $;
 window.$ = $;
@@ -34,14 +37,26 @@ class Index extends React.Component {
         this.state = {
             editingKey: '',
             form: '',
-            data: []
+            data: [],
+            vesselList: [],
+            lcList: []
         }
 
         this.columns = [
             {
+                name: 'ID',
+                selector: 'ID',
+                omit: true
+            },
+            {
+                name: 'LoadingConditionID',
+                selector: 'LoadingConditionID',
+                omit: true
+            },
+            {
                 name: 'Tank Name',
                 selector: 'tankName',
-                minWidth: '150px'
+                minWidth: '150px',
             },
             {
                 name: 'Max Volume',
@@ -101,7 +116,9 @@ class Index extends React.Component {
     state = {
         listOpen: false,
         dataObj: '',
-        isSolve: false
+        isSolve: false,
+        isSave: false,
+        isOpen: false
     };
 
     componentWillReceiveProps(nextProps) {
@@ -109,9 +126,28 @@ class Index extends React.Component {
             this.setState({
                 data: nextProps.tankList,
             });
-        } else {
-
         }
+        if (!isEmpty(nextProps.lcList)) {
+            this.setState({
+                lcList: nextProps.lcList,
+            });
+        }
+        if (!isEmpty(nextProps.vesselList)) {
+            this.setState({
+                vesselList: nextProps.vesselList,
+            });
+        }
+        if (!isEmpty(nextProps.recordSaveStatus)) {
+            this.setState({ isSave: false })
+            this.sweetAlertHandler({ title: "Saved Successfully!", text: nextProps.recordSaveStatus, type: 'success' })
+        }
+        if (!isEmpty(nextProps.recordUpdateStatus)) {
+            this.sweetAlertHandler({ title: "Update Successfully!", text: nextProps.recordUpdateStatus, type: 'success' })
+        }
+    }
+
+    componentDidMount() {
+        this.props.getAllVesselList();
     }
 
     isEditing = (record) => {
@@ -191,13 +227,56 @@ class Index extends React.Component {
     }
 
     handleSave = () => {
-        console.log(this.state.data);
+        console.log(this.state.dataObj);
+        let loadingConData = {
+            vesselID: this.state.dataObj.vesselName,
+            loadingConditionName: this.state.dataObj.LCName,
+            isActive: true,
+            TankData: this.state.data
+        }
 
-        this.sweetAlertHandler({title: 'Saved Successfully!', type: 'success', text: 'Saved Tank Weight Values!'})
+        this.props.saveTankDetail(loadingConData);
+
     }
 
+    handleSaveModal = () => {
+
+        if(this.state.dataObj.lcID == ''){
+            this.setState({ isSave: true })
+        }
+        else if(this.state.dataObj.lcID != '') {
+            this.props.updateTankDetail(this.state.data);
+        }
+
+    }
+
+    handleSaveModalClose = () => {
+
+        this.setState({ isSave: false })
+    }
+
+    handleOpenModal = () => {
+        this.props.getAllLCList(this.state.dataObj.vesselName)
+        this.setState({ isOpen: true })
+    }
+
+    handleOpenModalClose = () => {
+
+        this.setState({ isOpen: false })
+    }
+
+    handleLoadSavedData = () => {
+        if(this.state.dataObj != ''){
+
+            this.props.getAllSavedTankData(this.state.dataObj.lcID);
+            this.setState({ isOpen: false })
+        }
+        else{
+            this.sweetAlertHandler({title: 'Request Failed!', type: 'error', text: 'Please Select Loading Condtion!'})
+        }
+    }
     render() {
-        const { listOpen, isSolve } = this.state;
+        const { listOpen, isSolve, vesselList, isSave, isOpen, lcList } = this.state;
 
         const columns = this.columns.map(col => {
             if (!col.editable) {
@@ -225,9 +304,9 @@ class Index extends React.Component {
                                     <div className="input-group">
                                         <select className="form-control add_task_todo" onChange={(e) => this.handleFormChange(e, 'dataObj')} name="vesselName" id="vesselName">
                                             <option value=''>Select Vessel Name</option>
-                                            <option value='CS CALVINA'>CS CALVINA</option>
-                                            <option value='CS CAPRICE'>CS CAPRICE</option>
-                                            <option value='CSB BRILLIANT'>CSB BRILLIANT</option>
+                                            {!isEmpty(vesselList) && vesselList.map((vessel, key) => {
+                                                return <option key={key} value={vessel.ID}>{vessel.VesselName}</option>;
+                                            })}
                                         </select>
                                         <div className="input-group-append">
                                             <button className="btn btn-primary btn-msg-send" type="button" onClick={this.handleLoadVessel}><i className="fa fa-ship" /></button>
@@ -271,10 +350,49 @@ class Index extends React.Component {
                                             <h5 className='mt-3'>Loading Condtion</h5>
                                             <hr />
                                             <div className="form-group fill">
-                                                <Button variant='outline-primary' size='sm' className='mr-1' onClick={this.handleSave}>Save</Button>
-                                                <Button variant='outline-secondary' size='sm' className='mr-1'>Open</Button>
+                                                <Button variant='outline-primary' size='sm' className='mr-1' onClick={this.handleSaveModal}>Save</Button>
+                                                <Button variant='outline-secondary' size='sm' className='mr-1' onClick={this.handleOpenModal}>Open</Button>
                                                 <Button variant='primary' size='sm' onClick={this.handleSolve}>Solve</Button>
                                             </div>
+                                            <Modal show={isSave} onHide={this.handleSaveModalClose}>
+                                                <Modal.Header closeButton>
+                                                    <Modal.Title as="h5">Save Loading Condtions</Modal.Title>
+                                                </Modal.Header>
+                                                <Modal.Body>
+                                                    <Form>
+                                                        <Form.Group controlId="formBasicLCName">
+                                                            <Form.Label>Loading Condition Name:</Form.Label>
+                                                            <Form.Control type="text" name="LCName" onChange={(e) => this.handleFormChange(e, 'dataObj')} placeholder="Enter Loading Condition Name" />
+                                                        </Form.Group>
+                                                    </Form>
+                                                </Modal.Body>
+                                                <Modal.Footer>
+                                                    <Button variant="secondary" onClick={this.handleSaveModalClose}>Close</Button>
+                                                    <Button variant="primary" onClick={this.handleSave}>Save Changes</Button>
+                                                </Modal.Footer>
+                                            </Modal>
+                                            <Modal show={isOpen} onHide={this.handleOpenModalClose}>
+                                                <Modal.Header closeButton>
+                                                    <Modal.Title as="h5">Open Loading Condtions</Modal.Title>
+                                                </Modal.Header>
+                                                <Modal.Body>
+                                                    <Form>
+                                                        <Form.Group controlId="formBasicLCName">
+                                                            <Form.Label>Select Loading Condition:</Form.Label>
+                                                            <select className="form-control add_task_todo" onChange={(e) => this.handleFormChange(e, 'dataObj')} name="lcID" id="lcID">
+                                                                <option value=''>Loading Condition</option>
+                                                                {!isEmpty(lcList) && lcList.map((lc, key) => {
+                                                                    return <option key={key} value={lc.ID}>{lc.LoadingConditionName}</option>;
+                                                                })}
+                                                            </select>
+                                                        </Form.Group>
+                                                    </Form>
+                                                </Modal.Body>
+                                                <Modal.Footer>
+                                                    <Button variant="secondary" onClick={this.handleOpenModalClose}>Close</Button>
+                                                    <Button variant="primary" onClick={this.handleLoadSavedData}>Load Data</Button>
+                                                </Modal.Footer>
+                                            </Modal>
                                         </Tab>
                                         <Tab eventKey="fixedWeights" title="Fixed Weights">
                                             <Table size="sm" striped hover responsive bordered className="table table-condensed" style={{ height: '406px', overflowY: 'scroll', width: '100%', display: 'block' }}>
@@ -458,10 +576,19 @@ class Index extends React.Component {
 
 const mapStateToProps = state => ({
     tankList: state.tankList,
+    vesselList: state.vesselList,
+    recordSaveStatus: state.recordSaveStatus,
+    lcList: state.lcList,
+    recordUpdateStatus: state.recordUpdateStatus
 });
 
 const mapDispatchToProps = dispath => ({
     getAllTankList: (tankList) => dispath(getAllTankList(tankList)),
+    getAllVesselList: (vesselList) => dispath(getAllVesselList(vesselList)),
+    saveTankDetail: (loadingConData) => dispath(saveTankDetail(loadingConData)),
+    getAllLCList: (lcList) => dispath(getAllLCList(lcList)),
+    getAllSavedTankData: (tankList) => dispath(getAllSavedTankData(tankList)),
+    updateTankDetail: (data) => dispath(updateTankDetail(data)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps) (Index);
