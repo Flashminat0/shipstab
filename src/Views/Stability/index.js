@@ -241,11 +241,11 @@ class Index extends React.Component {
 
     handleSaveModal = () => {
 
-        if(this.state.dataObj.lcID == ''){
-            this.setState({ isSave: true })
-        }
-        else if(this.state.dataObj.lcID != '') {
+        if(!isEmpty(this.state.dataObj.lcID)) {
             this.props.updateTankDetail(this.state.data);
+        }
+        else {
+            this.setState({ isSave: true })
         }
 
     }
