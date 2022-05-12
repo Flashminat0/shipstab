@@ -243,6 +243,10 @@ class Index extends React.Component {
 
         if(!isEmpty(this.state.dataObj.lcID)) {
             this.props.updateTankDetail(this.state.data);
+
+            this.state.dataObj.lcID = ''
+
+            this.props.getAllTankList();
         }
         else {
             this.setState({ isSave: true })
@@ -588,7 +592,7 @@ const mapDispatchToProps = dispath => ({
     saveTankDetail: (loadingConData) => dispath(saveTankDetail(loadingConData)),
     getAllLCList: (lcList) => dispath(getAllLCList(lcList)),
     getAllSavedTankData: (tankList) => dispath(getAllSavedTankData(tankList)),
-    updateTankDetail: (data) => dispath(updateTankDetail(data)),
+    updateTankDetail: (data) => dispath(updateTankDetail(data))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps) (Index);

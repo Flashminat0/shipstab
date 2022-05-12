@@ -141,7 +141,8 @@ const reducer = (state = initialState, action) => {
         case actionTypes.GET_TANK_LIST:
                 return {
                   ...state,
-                  tankList: action.tankList
+                  tankList: action.tankList,
+                  lcList: null
             }
         case actionTypes.GET_LC_LIST:
                 return {
