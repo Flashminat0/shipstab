@@ -164,6 +164,16 @@ const reducer = (state = initialState, action) => {
                   ...state,
                   recordUpdateStatus: action.recordUpdateStatus
             }
+        case actionTypes.LC_DELETE_RECORD_STATUS:
+                return {
+                  ...state,
+                  recordLCDeleteStatus: action.recordLCDeleteStatus
+            }
+        case actionTypes.LC_COPY_RECORD_STATUS:
+                return {
+                  ...state,
+                  recordCopyStatus: action.recordCopyStatus
+            }
         case actionTypes.CLEAR_ALL_TANK_DATA:
                 return {
                   ...state,
@@ -172,6 +182,8 @@ const reducer = (state = initialState, action) => {
                   lcList: null,
                   recordSaveStatus: null,
                   recordUpdateStatus: null,
+                  recordLCDeleteStatus: null,
+                  recordCopyStatus: null
             }
         case actionTypes.GET_VESSEL_LIST:
                 return {
@@ -182,6 +194,22 @@ const reducer = (state = initialState, action) => {
                 return {
                   ...state,
                   vesselList: null
+            }
+        case actionTypes.GET_FW_LIST:
+                return {
+                  ...state,
+                  fwList: action.fwList
+            }
+        case actionTypes.DELETE_RECORD_STATUS:
+                return {
+                  ...state,
+                  recordDeleteStatus: action.recordDeleteStatus
+            }
+        case actionTypes.CLEAR_ALL_FW_DATA:
+                return {
+                  ...state,
+                  fwList: null,
+                  recordDeleteStatus: null,
             }
         default:
             return state;

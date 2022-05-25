@@ -2,7 +2,7 @@ import axios from 'axios';
 import qs from 'querystring';
 
 import {API_URL} from '../../util/api';
-import {GET_TANK_LIST, GET_LC_LIST, GET_TANK_DETAILS, SAVE_RECORD_STATUS, UPDATE_RECORD_STATUS, CLEAR_ALL_TANK_DATA, ERROR} from '../actions';
+import {GET_TANK_LIST, GET_LC_LIST, GET_TANK_DETAILS, SAVE_RECORD_STATUS, UPDATE_RECORD_STATUS, LC_DELETE_RECORD_STATUS, LC_COPY_RECORD_STATUS, CLEAR_ALL_TANK_DATA, ERROR} from '../actions';
 import isEmpty from '../../util/isEmpty';
 import tankDataMapping from '../../util/tankDataMapping';
 
@@ -32,6 +32,16 @@ export const RecordSaveStatus = recordSaveStatus => ({
 export const RecordUpdateStatus = recordUpdateStatus => ({
     type: UPDATE_RECORD_STATUS,
     recordUpdateStatus,
+});
+
+export const RecordDeleteStatus = recordLCDeleteStatus => ({
+    type: LC_DELETE_RECORD_STATUS,
+    recordLCDeleteStatus,
+});
+
+export const RecordCopyStatus = recordCopyStatus => ({
+    type: LC_COPY_RECORD_STATUS,
+    recordCopyStatus,
 });
 
 export const error = error => ({
@@ -71,7 +81,7 @@ export const getAllTankList = (data) => dispath => {
             maxVolume: "500",
             density: "1",
             sounding: "",
-            fil: "100",
+            fil: "0",
             weight: "0",
             location: "P",
             LCG: "0",
@@ -83,7 +93,7 @@ export const getAllTankList = (data) => dispath => {
             maxVolume: "500",
             density: "1",
             sounding: "",
-            fil: "100",
+            fil: "0",
             weight: "0",
             location: "P",
             LCG: "0",
@@ -95,7 +105,7 @@ export const getAllTankList = (data) => dispath => {
             maxVolume: "500",
             density: "1",
             sounding: "",
-            fil: "100",
+            fil: "0",
             weight: "0",
             location: "P",
             LCG: "0",
@@ -107,7 +117,7 @@ export const getAllTankList = (data) => dispath => {
             maxVolume: "500",
             density: "1",
             sounding: "",
-            fil: "100",
+            fil: "0",
             weight: "0",
             location: "P",
             LCG: "0",
@@ -119,7 +129,7 @@ export const getAllTankList = (data) => dispath => {
             maxVolume: "500",
             density: "1",
             sounding: "",
-            fil: "100",
+            fil: "0",
             weight: "0",
             location: "P",
             LCG: "0",
@@ -131,7 +141,7 @@ export const getAllTankList = (data) => dispath => {
             maxVolume: "500",
             density: "1",
             sounding: "",
-            fil: "100",
+            fil: "0",
             weight: "0",
             location: "P",
             LCG: "0",
@@ -143,7 +153,7 @@ export const getAllTankList = (data) => dispath => {
             maxVolume: "500",
             density: "1",
             sounding: "",
-            fil: "100",
+            fil: "0",
             weight: "0",
             location: "P",
             LCG: "0",
@@ -155,7 +165,7 @@ export const getAllTankList = (data) => dispath => {
             maxVolume: "500",
             density: "1",
             sounding: "",
-            fil: "100",
+            fil: "0",
             weight: "0",
             location: "P",
             LCG: "0",
@@ -167,7 +177,7 @@ export const getAllTankList = (data) => dispath => {
             maxVolume: "500",
             density: "1",
             sounding: "",
-            fil: "100",
+            fil: "0",
             weight: "0",
             location: "P",
             LCG: "0",
@@ -179,7 +189,7 @@ export const getAllTankList = (data) => dispath => {
             maxVolume: "500",
             density: "1",
             sounding: "",
-            fil: "100",
+            fil: "0",
             weight: "0",
             location: "P",
             LCG: "0",
@@ -325,6 +335,38 @@ export const updateTankDetail = (data) => dispath => {
             dispath(error('API Error. Please contact administrator.'));
         }
     }); 
+}
+
+export const deleteLCDetail = (data) => dispath => {
+    axios.post(API_URL + `${APIPath}/DeleteLoadingCondition`, data, config)
+        .then(res => {
+            if(res.data == true){
+                dispath(RecordDeleteStatus('Loading Condition Data Deleted Successfully.')) 
+                dispath(clearAll());
+            }
+            else {
+                dispath(error('Loading Condition Delete Request Error. Please contact administrator.'));
+            }
+        })
+        .catch(err => {
+            dispath(error(err.response.data.message || 'ERROR'));
+        });   
+}
+
+export const lcCopyAndCreate = (data) => dispath => {
+    axios.post(API_URL + `${APIPath}/LCCopyAndCreate`, data, config)
+        .then(res => {
+            if(res.data == true){
+                dispath(RecordCopyStatus('Loading Condition Copy and Create Successfully.')) 
+                dispath(clearAll());
+            }
+            else {
+                dispath(error('Loading Condition Copy and Create Request Error. Please contact administrator.'));
+            }
+        })
+        .catch(err => {
+            dispath(error(err.response.data.message || 'ERROR'));
+        });   
 }
 
 export const clearError = () => dispath =>{

@@ -24,9 +24,11 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import DataTable from 'react-data-table-component';
 import isEmpty from '../../util/isEmpty';
-import { getAllTankList, saveTankDetail, getAllLCList, getAllSavedTankData, updateTankDetail } from "../../store/api/loading_tank";
+import { getAllTankList, saveTankDetail, getAllLCList, getAllSavedTankData, updateTankDetail, deleteLCDetail, lcCopyAndCreate } from "../../store/api/loading_tank";
 import { getAllVesselList } from "../../store/api/vessel";
+import { getAllFWList, getAllSavedFWData, deleteFWDetail} from "../../store/api/fixed_weight";
 import $ from 'jquery';
+
 window.jQuery = $;
 window.$ = $;
 global.jQuery = $;
@@ -38,8 +40,10 @@ class Index extends React.Component {
             editingKey: '',
             form: '',
             data: [],
+            fixedWeightsData: [],
             vesselList: [],
-            lcList: []
+            lcList: [],
+            loadingConName: 'New Loading Condition'
         }
 
         this.columns = [
@@ -66,17 +70,24 @@ class Index extends React.Component {
             {
                 name: 'Density',
                 selector: 'density',
-                maxWidth: '20px'
+                minWidth: '5px'
             },
             {
                 name: 'Sounding',
                 selector: 'sounding',
-                maxWidth: '20px'
+                minWidth: '5px'
             },
             {
                 name: 'Fil',
                 selector: 'fil',
-                maxWidth: '20px'
+                minWidth: '5px',
+                cell: row => {
+                  return (
+                    <div>
+                         {row.fil != "" ? <input type='text' value={row.fil} name='fil' onChange={(e) => this.handleChange(e, 'form', row.tankName, row.maxVolume)} className='type-2' style={{ display:'block', width:'100%', margin:'0 0', padding:'5px'}}/> : ''}
+                    </div>
+                  )
+                }
             },
             {
                 name: 'Weight',
@@ -85,7 +96,7 @@ class Index extends React.Component {
                 cell: row => {
                   return (
                     <div>
-                         {row.weight != "" ? <input type='text' value={row.weight} name='weight' onChange={(e) => this.handleChange(e, 'form', row.tankName)} className='type-2' style={{ display:'block', width:'100%', margin:'0 0', padding:'5px'}}/> : ''}
+                         {row.weight != "" ? <input type='text' disabled={true} value={row.weight} name='weight' onChange={(e) => this.handleChange(e, 'form', row.tankName, row.maxVolume)} className='type-2' style={{ display:'block', width:'100%', margin:'0 0', padding:'5px'}}/> : ''}
                     </div>
                   )
                 }
@@ -98,18 +109,170 @@ class Index extends React.Component {
             {
                 name: 'LCG',
                 selector: 'LCG',
-                Width: '20px'
+                minWidth: '5px'
             },
             {
                 name: 'TCG',
                 selector: 'TCG',
-                maxWidth: '5px'
+                minWidth: '5px'
             },
             {
                 name: 'VCG',
                 selector: 'VCG',
-                maxWidth: '20px'
+                minWidth: '5px'
             }
+        ]
+
+        this.columnsFW = [
+            {
+                name: 'ID',
+                selector: 'ID',
+                omit: true
+            },
+            {
+                name: 'LoadingConditionID',
+                selector: 'LoadingConditionID',
+                omit: true
+            },
+            {
+                name: 'Item Name',
+                selector: 'itemName',
+                minWidth: '150px',
+                cell: row => {
+                  return (
+                    <div>
+                         <input type='text' value={row.itemName} name='itemName' onChange={(e) => this.handleFWChange(e, 'form', row.ID)} className='type-2' style={{ display:'block', width:'100%', margin:'0 0', padding:'5px'}}/>
+                    </div>
+                  )
+                }
+            },
+            {
+                name: 'Weight',
+                selector: 'weight',
+                minWidth: '5px',
+                cell: row => {
+                  return (
+                    <div>
+                         <input type='text' value={row.weight} name='weight' onChange={(e) => this.handleFWChange(e, 'form', row.ID)} className='type-2' style={{ display:'block', width:'100%', margin:'0 0', padding:'5px'}}/>
+                    </div>
+                  )
+                }
+            },
+            {
+                name: 'LCG',
+                selector: 'LCG',
+                minWidth: '5px',
+                cell: row => {
+                  return (
+                    <div>
+                         <input type='text' value={row.LCG} name='LCG' onChange={(e) => this.handleFWChange(e, 'form', row.ID)} className='type-2' style={{ display:'block', width:'100%', margin:'0 0', padding:'5px'}}/>
+                    </div>
+                  )
+                }
+            },
+            {
+                name: 'TCG',
+                selector: 'TCG',
+                minWidth: '5px',
+                cell: row => {
+                  return (
+                    <div>
+                         <input type='text' value={row.TCG} name='TCG' onChange={(e) => this.handleFWChange(e, 'form', row.ID)} className='type-2' style={{ display:'block', width:'100%', margin:'0 0', padding:'5px'}}/>
+                    </div>
+                  )
+                }
+            },
+            {
+                name: 'VCG',
+                selector: 'VCG',
+                minWidth: '5px',
+                cell: row => {
+                  return (
+                    <div>
+                         <input type='text' value={row.VCG} name='VCG' onChange={(e) => this.handleFWChange(e, 'form', row.ID)} className='type-2' style={{ display:'block', width:'100%', margin:'0 0', padding:'5px'}}/>
+                    </div>
+                  )
+                }
+            },
+            {
+                name: 'AFT Location',
+                selector: 'AFTLocation',
+                minWidth: '5px',
+                cell: row => {
+                  return (
+                    <div>
+                         <input type='text' value={row.AFTLocation} name='AFTLocation' onChange={(e) => this.handleFWChange(e, 'form', row.ID)} className='type-2' style={{ display:'block', width:'100%', margin:'0 0', padding:'5px'}}/>
+                    </div>
+                  )
+                }
+            },
+            {
+                name: 'FORD Location',
+                selector: 'fordLocation',
+                minWidth: '5px',
+                cell: row => {
+                  return (
+                    <div>
+                         <input type='text' value={row.fordLocation} name='fordLocation' onChange={(e) => this.handleFWChange(e, 'form', row.ID)} className='type-2' style={{ display:'block', width:'100%', margin:'0 0', padding:'5px'}}/>
+                    </div>
+                  )
+                }
+            },
+            {
+                name: 'Action',
+                minWidth: '5px',
+                cell: row => {
+                  return (
+                    <Button className='btn btn-sm btn-danger' outline onClick={() => this.deleteRow(row.ID)}>
+                        <i className="fa fa-trash" />
+                    </Button>
+                  )
+                }
+            }
+        ]
+
+        this.columnsLC = [
+            {
+                name: 'ID',
+                selector: 'ID',
+                omit: true
+            },
+            {
+                maxWidth: '5px',
+                cell: row => {
+                  return (
+                      <>
+                        <Button className='btn btn-sm btn-primary mr-1' outline onClick={() => this.copyLC(row.ID)}>
+                            <i className="fa fa-copy" />
+                        </Button>
+                        <Button className='btn btn-sm btn-danger' outline onClick={(e) => this.deleteLCRow(e, row.ID)}>
+                            <i className="fa fa-trash" />
+                        </Button>
+                      </>
+                    
+                  )
+                }
+            },
+            {
+                selector: 'LoadingConditionName',
+                cell: row => {
+                    return (
+                        <>
+                          <div onClick={() => this.handleLoadSavedData(row.ID)}>
+                              {row.LoadingConditionName}
+                          </div>
+                        </>
+                      
+                    )
+                },
+                conditionalCellStyles: [
+                    {
+                        when: row => row.LoadingConditionName != null,
+                        classNames: ['cell-3-undefined']
+                    }
+                ]
+            }
+
         ]
     }
 
@@ -132,6 +295,11 @@ class Index extends React.Component {
                 lcList: nextProps.lcList,
             });
         }
+        if (!isEmpty(nextProps.fwList)) {
+            this.setState({
+                fixedWeightsData: nextProps.fwList,
+            });
+        }
         if (!isEmpty(nextProps.vesselList)) {
             this.setState({
                 vesselList: nextProps.vesselList,
@@ -143,6 +311,9 @@ class Index extends React.Component {
         }
         if (!isEmpty(nextProps.recordUpdateStatus)) {
             this.sweetAlertHandler({ title: "Update Successfully!", text: nextProps.recordUpdateStatus, type: 'success' })
+        }
+        if (!isEmpty(nextProps.recordCopyStatus)) { 
+            
         }
     }
 
@@ -158,25 +329,137 @@ class Index extends React.Component {
 
     edit = (key) => {
         this.setState({ editingKey: key })
-      }
+    }
 
-    handleChange = (e, form, filed) => {
+    copyLC = (key) => {
+        this.setState({ isOpen: false })
+
+        const MySwal = withReactContent(Swal);
+        MySwal.fire({
+            text: 'Enter New Loading Condition Name:',
+            input: 'text',
+        }).then((result) => {
+            if (result.value) {
+                const data = {
+                    ID: key,
+                    loadingConditionName: result.value
+                }
+
+                this.props.lcCopyAndCreate(data);
+            } else {
+                return MySwal.fire('Invalid!', 'Please Enter Loading Condition Name', 'error');
+            }
+        }).finally(() => {
+            Swal.fire({
+                title: 'Please Wait..!',
+                html: 'New Loading Condition Creating...',
+                timer: 1500,
+                timerProgressBar: true,
+                onBeforeOpen: () => {
+                    Swal.showLoading()
+                },
+                onClose: () => {
+                    //this.sweetAlertHandler({ title: "Successfully!", text: nextProps.recordCopyStatus, type: 'success' })
+                    this.handleOpenModal(); 
+                }
+                }).then((result) => {
+            
+                })
+        });
+    }
+    
+    deleteLCRow = (e, key) => {
+        this.setState({ isOpen: false })
+        const MySwal = withReactContent(Swal);
+
+        MySwal.fire({
+            title: 'Are you sure?',
+            text: 'Once deleted, you will not be able to recover this Loading Condition file!',
+            type: 'warning',
+            showCloseButton: true,
+            showCancelButton: true
+        }).then((willDelete) => {
+            if (willDelete.value) {
+                let deleteObj = this.state.lcList.find(c => c.ID === key)
+
+                const data = {
+                    ID: key
+                };
+
+                this.props.deleteLCDetail(data);
+
+                var index = this.state.lcList.indexOf(deleteObj);
+
+                if (index > -1) { 
+                    this.state.lcList.splice(index, 1);
+                }
+
+                this.setState({
+                    lcList: this.state.lcList
+                })
+            } else {
+                return MySwal.fire('', 'Your Loading Condition file is safe!', 'error');
+            }
+        }).finally(() => {
+            this.setState({ isOpen: true })
+        });
 
         
-        // this.edit(filed);
+    }
+    
+    deleteRow = (key) => {
 
-        //   this.setState({
-        //     [form]: {
-        //       [e.target.name]: e.target.value
-        //     }
-        //   })
+        let deleteObj = this.state.fixedWeightsData.find(c => c.ID === key)
 
-        this.state.data.find(c => c.tankName === filed).weight = e.target.value
+        const data = {
+            ID: key
+        }
+        if(!isNaN(key)){
+            this.props.deleteFWDetail(data);
+        }
+
+        var index = this.state.fixedWeightsData.indexOf(deleteObj);
+
+        if (index > -1) { 
+            this.state.fixedWeightsData.splice(index, 1);
+        }
+
+        this.setState({
+            fixedWeightsData: this.state.fixedWeightsData
+        })
+    }
+
+    handleChange = (e, form, filed, maxVol) => {
+
+        this.state.data.find(c => c.tankName === filed).fil = e.target.value
+        this.state.data.find(c => c.tankName === filed).weight = maxVol * e.target.value / 100;
  
         this.setState({
             data: this.state.data
         })
-      }
+    }
+
+    handleFWChange = (e, form, filed) => {
+        if (e.target.name == 'itemName'){
+            this.state.fixedWeightsData.find(c => c.ID === filed).itemName = e.target.value
+        } else if (e.target.name == 'weight') {
+            this.state.fixedWeightsData.find(c => c.ID === filed).weight = e.target.value
+        } else if (e.target.name == 'LCG') {
+            this.state.fixedWeightsData.find(c => c.ID === filed).LCG = e.target.value
+        } else if (e.target.name == 'TCG') {
+            this.state.fixedWeightsData.find(c => c.ID === filed).TCG = e.target.value
+        } else if (e.target.name == 'VCG') {
+            this.state.fixedWeightsData.find(c => c.ID === filed).VCG = e.target.value
+        } else if (e.target.name == 'AFTLocation') {
+            this.state.fixedWeightsData.find(c => c.ID === filed).AFTLocation = e.target.value
+        } else if (e.target.name == 'fordLocation') {
+            this.state.fixedWeightsData.find(c => c.ID === filed).fordLocation = e.target.value
+        }
+
+        this.setState({
+            fixedWeightsData: this.state.fixedWeightsData
+        })
+    }
 
     sweetAlertHandler = (alert) => {
         const MySwal = withReactContent(Swal);
@@ -228,11 +511,17 @@ class Index extends React.Component {
 
     handleSave = () => {
         console.log(this.state.dataObj);
+
+        this.state.fixedWeightsData.forEach(element => {
+            delete element.ID
+        });
+
         let loadingConData = {
             vesselID: this.state.dataObj.vesselName,
             loadingConditionName: this.state.dataObj.LCName,
             isActive: true,
-            TankData: this.state.data
+            TankData: this.state.data,
+            weightData: this.state.fixedWeightsData
         }
 
         this.props.saveTankDetail(loadingConData);
@@ -242,11 +531,27 @@ class Index extends React.Component {
     handleSaveModal = () => {
 
         if(!isEmpty(this.state.dataObj.lcID)) {
-            this.props.updateTankDetail(this.state.data);
+
+            this.state.fixedWeightsData.forEach(element => {
+                const ID = element.ID;
+                
+                if(isNaN(ID)){
+                    delete element.ID
+                }
+            });
+            let loadingConData = {
+                ID: this.state.dataObj.lcID,
+                isActive: true,
+                TankData: this.state.data,
+                weightData: this.state.fixedWeightsData
+            }
+
+            this.props.updateTankDetail(loadingConData);
 
             this.state.dataObj.lcID = ''
-
+            this.setState({ loadingConName: 'New Loading Condition'})
             this.props.getAllTankList();
+            this.setState({ fixedWeightsData: [] })
         }
         else {
             this.setState({ isSave: true })
@@ -269,20 +574,55 @@ class Index extends React.Component {
         this.setState({ isOpen: false })
     }
 
-    handleLoadSavedData = () => {
-        if(this.state.dataObj != ''){
+    handleLoadSavedData = (id) => {
 
+        this.state.dataObj.lcID = id
+
+        if(this.state.dataObj != ''){
             this.props.getAllSavedTankData(this.state.dataObj.lcID);
+            this.props.getAllSavedFWData(this.state.dataObj.lcID);           
+            this.setState({ loadingConName: this.state.lcList.find(c => c.ID === parseInt(this.state.dataObj.lcID)).LoadingConditionName })
             this.setState({ isOpen: false })
         }
         else{
             this.sweetAlertHandler({title: 'Request Failed!', type: 'error', text: 'Please Select Loading Condtion!'})
         }
     }
+
+    handleAddRow = () => {
+        this.props.getAllFWList(this.state.fixedWeightsData)
+    }
+
     render() {
-        const { listOpen, isSolve, vesselList, isSave, isOpen, lcList } = this.state;
+        const { listOpen, isSolve, vesselList, isSave, isOpen, lcList, loadingConName } = this.state;
 
         const columns = this.columns.map(col => {
+            if (!col.editable) {
+                return col
+            }
+            return {
+                ...col,
+                onCell: record => ({
+                    record,
+                    editing: this.isEditing(record)
+                })
+            }
+        })
+
+        const columnsFW = this.columnsFW.map(col => {
+            if (!col.editable) {
+                return col
+            }
+            return {
+                ...col,
+                onCell: record => ({
+                    record,
+                    editing: this.isEditing(record)
+                })
+            }
+        })
+
+        const columnsLC = this.columnsLC.map(col => {
             if (!col.editable) {
                 return col
             }
@@ -336,6 +676,7 @@ class Index extends React.Component {
                         <Card>
                             <Card.Body style={{ minHeight: '630px' }}>
                                 {listOpen &&
+                                    <>
                                     <Tabs defaultActiveKey="tank" className="mb-3">
                                         <Tab eventKey="tank" title="Tank">
                                             <DataTable
@@ -351,102 +692,85 @@ class Index extends React.Component {
                                                 fixedHeaderScrollHeight="406px"
                                                 data={this.state.data}
                                             />
-                                            <h5 className='mt-3'>Loading Condtion</h5>
-                                            <hr />
-                                            <div className="form-group fill">
-                                                <Button variant='outline-primary' size='sm' className='mr-1' onClick={this.handleSaveModal}>Save</Button>
-                                                <Button variant='outline-secondary' size='sm' className='mr-1' onClick={this.handleOpenModal}>Open</Button>
-                                                <Button variant='primary' size='sm' onClick={this.handleSolve}>Solve</Button>
-                                            </div>
-                                            <Modal show={isSave} onHide={this.handleSaveModalClose}>
-                                                <Modal.Header closeButton>
-                                                    <Modal.Title as="h5">Save Loading Condtions</Modal.Title>
-                                                </Modal.Header>
-                                                <Modal.Body>
-                                                    <Form>
-                                                        <Form.Group controlId="formBasicLCName">
-                                                            <Form.Label>Loading Condition Name:</Form.Label>
-                                                            <Form.Control type="text" name="LCName" onChange={(e) => this.handleFormChange(e, 'dataObj')} placeholder="Enter Loading Condition Name" />
-                                                        </Form.Group>
-                                                    </Form>
-                                                </Modal.Body>
-                                                <Modal.Footer>
-                                                    <Button variant="secondary" onClick={this.handleSaveModalClose}>Close</Button>
-                                                    <Button variant="primary" onClick={this.handleSave}>Save Changes</Button>
-                                                </Modal.Footer>
-                                            </Modal>
-                                            <Modal show={isOpen} onHide={this.handleOpenModalClose}>
-                                                <Modal.Header closeButton>
-                                                    <Modal.Title as="h5">Open Loading Condtions</Modal.Title>
-                                                </Modal.Header>
-                                                <Modal.Body>
-                                                    <Form>
-                                                        <Form.Group controlId="formBasicLCName">
-                                                            <Form.Label>Select Loading Condition:</Form.Label>
-                                                            <select className="form-control add_task_todo" onChange={(e) => this.handleFormChange(e, 'dataObj')} name="lcID" id="lcID">
-                                                                <option value=''>Loading Condition</option>
-                                                                {!isEmpty(lcList) && lcList.map((lc, key) => {
-                                                                    return <option key={key} value={lc.ID}>{lc.LoadingConditionName}</option>;
-                                                                })}
-                                                            </select>
-                                                        </Form.Group>
-                                                    </Form>
-                                                </Modal.Body>
-                                                <Modal.Footer>
-                                                    <Button variant="secondary" onClick={this.handleOpenModalClose}>Close</Button>
-                                                    <Button variant="primary" onClick={this.handleLoadSavedData}>Load Data</Button>
-                                                </Modal.Footer>
-                                            </Modal>
+                                           
                                         </Tab>
-                                        <Tab eventKey="fixedWeights" title="Fixed Weights">
-                                            <Table size="sm" striped hover responsive bordered className="table table-condensed" style={{ height: '406px', overflowY: 'scroll', width: '100%', display: 'block' }}>
-                                                <thead>
-                                                    <tr>
-                                                        <th>Item Name</th>
-                                                        <th>Weight</th>
-                                                        <th>LCG</th>
-                                                        <th>TCG</th>
-                                                        <th>VCG</th>
-                                                        <th>AFT Location</th>
-                                                        <th>FORD Location</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <th>wt1</th>
-                                                        <th>1000.00</th>
-                                                        <th>0.000</th>
-                                                        <th>5.000</th>
-                                                        <th>10.000</th>
-                                                        <th>-10.000</th>
-                                                        <th>10.000</th>
-                                                    </tr>
-                                                    <tr>
-                                                        <th>wt2</th>
-                                                        <th>4000.00</th>
-                                                        <th>30.000</th>
-                                                        <th>0.000</th>
-                                                        <th>10.000</th>
-                                                        <th>-10.000</th>
-                                                        <th>10.000</th>
-                                                    </tr>
-
-                                                </tbody>
-                                            </Table>
-
-                                            <h5 className='mt-3'>Loading Condtion</h5>
-                                            <hr />
-                                            <div className="form-group fill">
-                                                <Button variant='outline-primary' size='sm' className='mr-1' onClick={this.handleSave}>Save</Button>
-                                                <Button variant='outline-secondary' size='sm' className='mr-1'>Open</Button>
-                                                <Button variant='primary' size='sm' className='mr-3' onClick={this.handleSolve}>Solve</Button>
-
-                                                <Button variant='outline-secondary' size='sm' className='mr-1' style={{ float: 'right' }}>Delete Weight</Button>
-                                                <Button variant='outline-secondary' size='sm' className='mr-1' style={{ float: 'right' }}>Add Weight</Button>
-
-                                            </div>
+                                        <Tab eventKey="fixedWeights" title="Fixed Weights" style={{minHeight: '390px'}}>
+                                            <Button variant='outline-primary' size='sm' className='mr-1' onClick={this.handleAddRow}>Add Fixed Weight</Button>
+                                            <DataTable
+                                                noHeader
+                                                responsive
+                                                {...this.state}
+                                                columns={columnsFW}
+                                                paginationPerPage={2}
+                                                className='react-dataTable'
+                                                //paginationDefaultPage={this.state.currentPage + 1}
+                                                fixedHeader
+                                                fixedHeaderScrollHeight="406px"
+                                                data={this.state.fixedWeightsData}
+                                            />
                                         </Tab>
                                     </Tabs>
+                                     <h5 className='mt-3'>Loading Condtion - {loadingConName}</h5>
+                                     <hr />
+                                     <div className="form-group fill">
+                                         <Button variant='outline-primary' size='sm' className='mr-1' onClick={this.handleSaveModal}>Save</Button>
+                                         <Button variant='outline-secondary' size='sm' className='mr-1' onClick={this.handleOpenModal}>Open</Button>
+                                         <Button variant='primary' size='sm' onClick={this.handleSolve}>Solve</Button>
+                                     </div>
+                                     <Modal show={isSave} onHide={this.handleSaveModalClose}>
+                                         <Modal.Header closeButton>
+                                             <Modal.Title as="h5">Save Loading Condtions</Modal.Title>
+                                         </Modal.Header>
+                                         <Modal.Body>
+                                             <Form>
+                                                 <Form.Group controlId="formBasicLCName">
+                                                     <Form.Label>Loading Condition Name:</Form.Label>
+                                                     <Form.Control type="text" name="LCName" onChange={(e) => this.handleFormChange(e, 'dataObj')} placeholder="Enter Loading Condition Name" />
+                                                 </Form.Group>
+                                             </Form>
+                                         </Modal.Body>
+                                         <Modal.Footer>
+                                             <Button variant="secondary" onClick={this.handleSaveModalClose}>Close</Button>
+                                             <Button variant="primary" onClick={this.handleSave}>Save Changes</Button>
+                                         </Modal.Footer>
+                                     </Modal>
+                                     <Modal show={isOpen} onHide={this.handleOpenModalClose}>
+                                         <Modal.Header closeButton>
+                                             <Modal.Title as="h5">Open Loading Condtions</Modal.Title>
+                                         </Modal.Header>
+                                         <Modal.Body>
+                                             <Form>
+                                                 <Form.Group controlId="formBasicLCName">
+                                                     <Form.Label>Select Loading Condition:</Form.Label>
+
+                                                     <DataTable
+                                                        noHeader
+                                                        responsive
+                                                        {...this.state}
+                                                        columns={columnsLC}
+                                                        paginationPerPage={2}
+                                                        className='react-dataTable'
+                                                        //paginationDefaultPage={this.state.currentPage + 1}
+                                                        fixedHeader
+                                                        fixedHeaderScrollHeight="300px"
+                                                        data={lcList}
+                                                    />
+
+                                                     {/* <select className="form-control add_task_todo" onChange={(e) => this.handleFormChange(e, 'dataObj')} name="lcID" id="lcID">
+                                                         <option value=''>Loading Condition</option>
+                                                         {!isEmpty(lcList) && lcList.map((lc, key) => {
+                                                             return <option key={key} value={lc.ID}>{lc.LoadingConditionName}</option>;
+                                                         })}
+                                                     </select> */}
+                                                 </Form.Group>
+                                             </Form>
+                                         </Modal.Body>
+                                         <Modal.Footer>
+                                             <Button variant="secondary" onClick={this.handleOpenModalClose}>Close</Button>
+                                             {/* <Button variant="primary" onClick={this.handleLoadSavedData}>Load Data</Button> */}
+                                         </Modal.Footer>
+                                     </Modal>
+                                     </>
                                 }
                                 {!listOpen &&
                                     <Alert variant="warning" className='mb-auto'>
@@ -583,7 +907,11 @@ const mapStateToProps = state => ({
     vesselList: state.vesselList,
     recordSaveStatus: state.recordSaveStatus,
     lcList: state.lcList,
-    recordUpdateStatus: state.recordUpdateStatus
+    recordUpdateStatus: state.recordUpdateStatus,
+    fwList: state.fwList,
+    recordDeleteStatus: state.recordDeleteStatus,
+    recordLCDeleteStatus: state.recordLCDeleteStatus,
+    recordCopyStatus: state.recordCopyStatus
 });
 
 const mapDispatchToProps = dispath => ({
@@ -592,7 +920,12 @@ const mapDispatchToProps = dispath => ({
     saveTankDetail: (loadingConData) => dispath(saveTankDetail(loadingConData)),
     getAllLCList: (lcList) => dispath(getAllLCList(lcList)),
     getAllSavedTankData: (tankList) => dispath(getAllSavedTankData(tankList)),
-    updateTankDetail: (data) => dispath(updateTankDetail(data))
+    updateTankDetail: (data) => dispath(updateTankDetail(data)),
+    getAllFWList: (data) => dispath(getAllFWList(data)),
+    getAllSavedFWData: (data) => dispath(getAllSavedFWData(data)),
+    deleteFWDetail: (data) => dispath(deleteFWDetail(data)),
+    deleteLCDetail: (data) => dispath(deleteLCDetail(data)),
+    lcCopyAndCreate: (data) => dispath(lcCopyAndCreate(data))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps) (Index);
