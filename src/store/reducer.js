@@ -193,7 +193,9 @@ const reducer = (state = initialState, action) => {
         case actionTypes.CLEAR_ALL_VESSEL_DATA:
                 return {
                   ...state,
-                  vesselList: null
+                  vesselList: null,
+                  recordSaveStatus: null,
+                  recordUpdateStatus: null
             }
         case actionTypes.GET_FW_LIST:
                 return {

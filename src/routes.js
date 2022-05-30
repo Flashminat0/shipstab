@@ -86,6 +86,8 @@ const ExtensionImageCropper = React.lazy(() => import('./Demo/Extension/ImageCro
 
 const OtherSamplePage = React.lazy(() => import('./Demo/Other/SamplePage'));
 
+const Vessel = React.lazy(() => import('./Views/Others/vessel'));
+
 const DashboardPage = React.lazy(() => import('./Views/Dashboard'));
 
 const routes = [
@@ -94,7 +96,7 @@ const routes = [
     { path: '/stability', exact: true, name: 'Widget Statistic', component: WdgtStatistic },
 
     { path: '/others/user', exact: true, name: 'Users', component: OtherSamplePage },
-    { path: '/others/vessel', exact: true, name: 'Vessels', component: OtherSamplePage },
+    { path: '/others/vessel', exact: true, name: 'Vessels', component: Vessel },
     { path: '/users/user-list', exact: true, name: 'User List', component: UsersList },
 
     { path: '/basic/alert', exact: true, name: 'Basic Alert', component: UIBasicAlert },
