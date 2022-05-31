@@ -1,3 +1,5 @@
+import isEmpty from "./isEmpty";
+
 const tankDataMapping = (value) => {
     let dataObjArr = [];
 
@@ -6,15 +8,15 @@ const tankDataMapping = (value) => {
             ID: data.ID,
             LoadingConditionID: data.LoadingConditionID,
             tankName: data.TankName,
-            maxVolume: data.MaxVolume,
-            density: data.Density,
-            sounding: data.Sounding,
-            fil: data.Fil,
-            weight: data.Weight,
-            location: data.Location,
-            LCG: data.LCG,
-            TCG: data.TCG,
-            VCG: data.VCG
+            maxVolume: !isEmpty(data.MaxVolume) ? data.MaxVolume : 0,
+            density: !isEmpty(data.Density) ? data.Density : '',
+            sounding: !isEmpty(data.Sounding) ? data.Sounding : 0,
+            fil: !isEmpty(data.Fil) ? data.Fil : 0,
+            weight: !isEmpty(data.Weight) ? data.Weight : 0,
+            location: !isEmpty(data.Location) ? data.Location : '',
+            LCG: !isEmpty(data.LCG) ? data.LCG : 0,
+            TCG: !isEmpty(data.TCG) ? data.TCG : 0,
+            VCG: !isEmpty(data.VCG) ? data.VCG: 0
         }
 
         dataObjArr.push(obj);

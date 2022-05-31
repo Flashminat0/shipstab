@@ -68,11 +68,12 @@ export const saveSingleVessel = (data) => dispath => {
     axios.post(API_URL + `${APIPath}/AddVessel`, data, config)
     .then(res => {
         if(res.data.status === 0){
-            dispath(RecordUpdateStatus(res.data.message)) 
+            dispath(RecordSaveStatus(res.data.message)) 
             dispath(clearAll());
         }
         else {
-            dispath(error(res.data.message));
+            dispath(RecordSaveStatus(res.data.status)) 
+            dispath(clearAll());
         }
     })
     .catch(err => {

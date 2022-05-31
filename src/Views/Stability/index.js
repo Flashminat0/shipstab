@@ -24,7 +24,7 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import DataTable from 'react-data-table-component';
 import isEmpty from '../../util/isEmpty';
-import { getAllTankList, saveTankDetail, getAllLCList, getAllSavedTankData, updateTankDetail, deleteLCDetail, lcCopyAndCreate } from "../../store/api/loading_tank";
+import { getAllTankList, saveTankDetail, getAllLCList, getAllSavedTankData, updateTankDetail, deleteLCDetail, lcCopyAndCreate, getAllWeightList } from "../../store/api/loading_tank";
 import { getAllVesselList } from "../../store/api/vessel";
 import { getAllFWList, getAllSavedFWData, deleteFWDetail} from "../../store/api/fixed_weight";
 import $ from 'jquery';
@@ -137,7 +137,7 @@ class Index extends React.Component {
             {
                 name: 'Item Name',
                 selector: 'itemName',
-                minWidth: '150px',
+                minWidth: '120px',
                 cell: row => {
                   return (
                     <div>
@@ -149,7 +149,7 @@ class Index extends React.Component {
             {
                 name: 'Weight',
                 selector: 'weight',
-                minWidth: '5px',
+                minWidth: '35px',
                 cell: row => {
                   return (
                     <div>
@@ -487,11 +487,11 @@ class Index extends React.Component {
 
     handleLoadVessel = (e) => {
         e.preventDefault();
-        
+ 
         if(this.state.dataObj != ''){
 
-            this.props.getAllTankList();
-
+            this.props.getAllTankList(this.state.dataObj.vesselName);
+            this.props.getAllWeightList(this.state.dataObj.vesselName);
             this.setState({
                 listOpen: true
             });
@@ -925,7 +925,8 @@ const mapDispatchToProps = dispath => ({
     getAllSavedFWData: (data) => dispath(getAllSavedFWData(data)),
     deleteFWDetail: (data) => dispath(deleteFWDetail(data)),
     deleteLCDetail: (data) => dispath(deleteLCDetail(data)),
-    lcCopyAndCreate: (data) => dispath(lcCopyAndCreate(data))
+    lcCopyAndCreate: (data) => dispath(lcCopyAndCreate(data)),
+    getAllWeightList: (data) => dispath(getAllWeightList(data))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps) (Index);

@@ -32,13 +32,15 @@ class Index extends Component {
                     </Col>
 
                     <Col xl={2} md={6}>
-                        <Card className='social-widget-card order-visitor-card'>
-                            <Card.Body className='bg-linkedin'>
-                                <span className="m-t-10">Manage</span>
-                                <h3 className="text-white m-0">Vessel</h3>
-                                <i className="fa fa-ship"/>
-                            </Card.Body>
-                        </Card>
+                        <Link to="/others/vessel">
+                            <Card className='social-widget-card order-visitor-card'>
+                                <Card.Body className='bg-linkedin'>
+                                    <span className="m-t-10">Manage</span>
+                                    <h3 className="text-white m-0">Vessel</h3>
+                                    <i className="fa fa-ship" />
+                                </Card.Body>
+                            </Card>
+                        </Link>
                     </Col>
                 </Row>
             </Aux>

@@ -122,13 +122,18 @@ class vessel extends Component {
             });
         }
         if (!isEmpty(nextProps.recordSaveStatus)) {
-            this.sweetAlertHandler({ title: "Success", text: nextProps.recordSaveStatus, type: 'success' })
 
-            // this.setState({ isSearch: true, isAdd: false })
+            if(nextProps.recordSaveStatus === 999) {
+                this.sweetAlertHandler({ title: "Error", text: "Vessel code already exists. Please Enter New Vessel Code", type: 'error' })
+            }
+            else 
+            {
+                this.sweetAlertHandler({ title: "Success", text: nextProps.recordSaveStatus, type: 'success' })
 
-            setTimeout(() => {
-                window.location.reload(false);
-            }, 1500);
+                setTimeout(() => {
+                    window.location.reload(false);
+                }, 1800);
+            }
         }
         if (!isEmpty(nextProps.recordUpdateStatus)) {
             this.sweetAlertHandler({ title: "Success", text: nextProps.recordUpdateStatus, type: 'success' })
@@ -159,7 +164,9 @@ class vessel extends Component {
     handleFormChange = (e, form, fieldName, innerFieldName) => {
         try {
             const { name, value } = e.target;
-            if(name == 'ConfigFile' || name == 'LoadingConditionFile'){
+            if(name == 'configFile' || name == 'loadingConditionFile'){
+
+                console.log(e.target.files)
                 this.setState({
                     [form]: {
                         ...this.state[form],
@@ -204,17 +211,17 @@ class vessel extends Component {
 
     handleSubmit = async () => {
 
-        console.log(this.state.vesselObj)
-        let LoadingConditionFile = null;
-        let ConfigFile = null;
+        console.log(this.state.vesselObj.loadingConditionFile)
+        let LoadingConditionFile = 'null';
+        let ConfigFile = 'null';
 
-        if(!isEmpty(this.state.vesselObj.loadingConditionFile)){
-            LoadingConditionFile = await this.getBase64(this.state.vesselObj.loadingConditionFile)
-        }
+        // if(!isEmpty(this.state.vesselObj.loadingConditionFile)){
+        //     LoadingConditionFile = this.state.vesselObj.loadingConditionFile
+        // }
          
-        if(!isEmpty(this.state.vesselObj.configFile)){
-            ConfigFile = await this.getBase64(this.state.vesselObj.configFile)
-        }
+        // if(!isEmpty(this.state.vesselObj.configFile)){
+        //     ConfigFile = this.state.vesselObj.configFile
+        // }
 
         if(isEmpty(this.state.vesselObj.id)){
 
@@ -222,14 +229,20 @@ class vessel extends Component {
             {
                 Swal.showLoading();
 
-                const data = {
-                    vesselName: this.state.vesselObj.vesselName,
-                    vesselCode: this.state.vesselObj.vesselCode,
-                    configFile: ConfigFile,
-                    loadingConditionFile: LoadingConditionFile
-                };
+                // const data = {
+                //     vesselName: this.state.vesselObj.vesselName,
+                //     vesselCode: this.state.vesselObj.vesselCode,
+                //     configFile: ConfigFile,
+                //     loadingConditionFile: LoadingConditionFile
+                // };
+
+                const formData = new FormData()
+                formData.append('vesselName', this.state.vesselObj.vesselName)
+                formData.append('vesselCode', this.state.vesselObj.vesselCode)
+                formData.append('configFile', this.state.vesselObj.configFile)
+                formData.append('loadingConditionFile', this.state.vesselObj.loadingConditionFile)
     
-                this.props.saveSingleVessel(data);
+                this.props.saveSingleVessel(formData);
             }
             else
             {
@@ -239,14 +252,21 @@ class vessel extends Component {
         }
         else{
                 Swal.showLoading();
-                const data = {
-                    id: this.state.vesselObj.id,
-                    vesselName: this.state.vesselObj.vesselName,
-                    vesselCode: this.state.vesselObj.vesselCode,
-                    configFile: ConfigFile,
-                    loadingConditionFile: LoadingConditionFile
-                };
-                this.props.updateSingleVessel(data);
+                // const data = {
+                //     id: this.state.vesselObj.id,
+                //     vesselName: this.state.vesselObj.vesselName,
+                //     vesselCode: this.state.vesselObj.vesselCode,
+                //     configFile: ConfigFile,
+                //     loadingConditionFile: LoadingConditionFile
+                // };
+
+                const formData = new FormData()
+                formData.append('id', this.state.vesselObj.id)
+                formData.append('vesselName', this.state.vesselObj.vesselName)
+                formData.append('vesselCode', this.state.vesselObj.vesselCode)
+                formData.append('configFile', this.state.vesselObj.configFile)
+                formData.append('loadingConditionFile', this.state.vesselObj.loadingConditionFile)
+                this.props.updateSingleVessel(formData);
         }
     }
 
@@ -284,8 +304,8 @@ class vessel extends Component {
                             <Form.Row>
                                 <Form.Group as={Col} md="12">
                                     <center>
-                                        <Button type={"button"} style={{ minWidth: '200px' }} variant={'info'} className={'m-3'}>Search</Button>
-                                        <Button style={{ minWidth: '200px' }} variant={'dark'} className={'m-3'}>Clear</Button>
+                                        <Button type={"button"} style={{ minWidth: '200px' }} variant={'info'} className={'m-3'} disabled>Search</Button>
+                                        <Button style={{ minWidth: '200px' }} variant={'dark'} className={'m-3'} disabled>Clear</Button>
                                     </center>
                                 </Form.Group>
                             </Form.Row>

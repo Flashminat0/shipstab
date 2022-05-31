@@ -1,3 +1,4 @@
+import isEmpty from "./isEmpty";
 const fwDataMapping = (value) => {
     let dataObjArr = [];
 
@@ -6,13 +7,13 @@ const fwDataMapping = (value) => {
             ID: data.ID,
             LoadingConditionID: data.LoadingConditionID,
             itemName: data.ItemName,
-            weight: data.Weight,
-            location: data.Location,
-            LCG: data.LCG,
-            TCG: data.TCG,
-            VCG: data.VCG,
-            AFTLocation: data.AFTLocation,
-            fordLocation: data.FORDLocation
+            weight: !isEmpty(data.Weight) ? data.Weight : 0,
+            location: !isEmpty(data.Location) ? data.Location : ' ',
+            LCG: !isEmpty(data.LCG) ? data.LCG : 0,
+            TCG: !isEmpty(data.TCG) ? data.TCG : 0,
+            VCG: !isEmpty(data.VCG) ? data.VCG : 0,
+            AFTLocation: !isEmpty(data.AFTLocation) ? data.AFTLocation : ' ',
+            fordLocation: !isEmpty(data.FORDLocation) ? data.FORDLocation : ' '
         }
 
         dataObjArr.push(obj);

@@ -2,16 +2,23 @@ import axios from 'axios';
 import qs from 'querystring';
 
 import {API_URL} from '../../util/api';
-import {GET_TANK_LIST, GET_LC_LIST, GET_TANK_DETAILS, SAVE_RECORD_STATUS, UPDATE_RECORD_STATUS, LC_DELETE_RECORD_STATUS, LC_COPY_RECORD_STATUS, CLEAR_ALL_TANK_DATA, ERROR} from '../actions';
+import {GET_TANK_LIST, GET_FW_LIST, GET_LC_LIST, GET_TANK_DETAILS, SAVE_RECORD_STATUS, UPDATE_RECORD_STATUS, LC_DELETE_RECORD_STATUS, LC_COPY_RECORD_STATUS, CLEAR_ALL_TANK_DATA, ERROR} from '../actions';
 import isEmpty from '../../util/isEmpty';
 import tankDataMapping from '../../util/tankDataMapping';
+import fwDataMapping from '../../util/fwDataMapping';
 
 const APIPath = "LoadingCondition";
 const TankDataAPIPath = "TankData";
+const WeightDataAPIPath = "WeightData"
 
 export const getTankList = tankList => ({
     type: GET_TANK_LIST,
     tankList: tankList,
+});
+
+export const getFWList = fwList => ({
+    type: GET_FW_LIST,
+    fwList: fwList,
 });
 
 export const getLCList = lcList => ({
@@ -63,166 +70,50 @@ export const getAllTankList = (data) => dispath => {
 
     dispath(getTankList([]));
 
-    let dataObjs = [
+    axios.get(API_URL + `${TankDataAPIPath}/GetAllByVesselId?VesselId=${data}`, config)
+    .then(res => {
+        if(!isEmpty(res.data))
         {
-            tankName: "Fresh Water",
-            maxVolume: "",
-            density: "",
-            sounding: "",
-            fil: "",
-            weight: "",
-            location: "",
-            LCG: "",
-            TCG: "",
-            VCG: ""
-        },
-        {
-            tankName: "No. 1 FW Tank (P)",
-            maxVolume: "500",
-            density: "1",
-            sounding: "",
-            fil: "0",
-            weight: "0",
-            location: "P",
-            LCG: "0",
-            TCG: "0",
-            VCG: "0"
-        },
-        {
-            tankName: "No. 2 FW Tank (P)",
-            maxVolume: "500",
-            density: "1",
-            sounding: "",
-            fil: "0",
-            weight: "0",
-            location: "P",
-            LCG: "0",
-            TCG: "0",
-            VCG: "0"
-        },
-        {
-            tankName: "No. 3 FW Tank (P)",
-            maxVolume: "500",
-            density: "1",
-            sounding: "",
-            fil: "0",
-            weight: "0",
-            location: "P",
-            LCG: "0",
-            TCG: "0",
-            VCG: "0"
-        },
-        {
-            tankName: "No. 4 FW Tank (P)",
-            maxVolume: "500",
-            density: "1",
-            sounding: "",
-            fil: "0",
-            weight: "0",
-            location: "P",
-            LCG: "0",
-            TCG: "0",
-            VCG: "0"
-        },
-        {
-            tankName: "No. 5 FW Tank (P)",
-            maxVolume: "500",
-            density: "1",
-            sounding: "",
-            fil: "0",
-            weight: "0",
-            location: "P",
-            LCG: "0",
-            TCG: "0",
-            VCG: "0"
-        },
-        {
-            tankName: "No. 6 FW Tank (P)",
-            maxVolume: "500",
-            density: "1",
-            sounding: "",
-            fil: "0",
-            weight: "0",
-            location: "P",
-            LCG: "0",
-            TCG: "0",
-            VCG: "0"
-        },
-        {
-            tankName: "No. 7 FW Tank (P)",
-            maxVolume: "500",
-            density: "1",
-            sounding: "",
-            fil: "0",
-            weight: "0",
-            location: "P",
-            LCG: "0",
-            TCG: "0",
-            VCG: "0"
-        },
-        {
-            tankName: "No. 8 FW Tank (P)",
-            maxVolume: "500",
-            density: "1",
-            sounding: "",
-            fil: "0",
-            weight: "0",
-            location: "P",
-            LCG: "0",
-            TCG: "0",
-            VCG: "0"
-        },
-        {
-            tankName: "No. 9 FW Tank (P)",
-            maxVolume: "500",
-            density: "1",
-            sounding: "",
-            fil: "0",
-            weight: "0",
-            location: "P",
-            LCG: "0",
-            TCG: "0",
-            VCG: "0"
-        },
-        {
-            tankName: "No. 10 FW Tank (P)",
-            maxVolume: "500",
-            density: "1",
-            sounding: "",
-            fil: "0",
-            weight: "0",
-            location: "P",
-            LCG: "0",
-            TCG: "0",
-            VCG: "0"
+            let result = tankDataMapping(res.data);
+            dispath(getTankList(result));
         }
-    ];
+        else
+        {
+            dispath(error("Error fetching list of Tank Data"))
+        }
+    })
+    .catch(err => {
+        if (err.response) {
+            dispath(error(err.response.data.message || 'ERROR'));
+        } else {
+            dispath(error('API Error. Please contact administrator.'));
+        }
+    }); 
+}
 
-    dispath(getTankList(dataObjs));
-    // axios.get(API_URL + `${APIPath}?${qs.stringify(data)}`, config)
-    // .then(res => {
+export const getAllWeightList = (data) => dispath => {
 
-    //     if(!isEmpty(res.data.status) && res.data.status != "Fail" )
-    //     {
-    //         console.log(res.data.result);
-    //         dispath(getTankList(res.data.result));
-    //     }
-    //     else if(!isEmpty(res.data.status) && res.data.status == "Fail" )
-    //     {
-    //         dispath(error(res.data.message))
-    //     }
-    //     else
-    //     {
-    //         dispath(error("Error fetching list of tanks"))
-    //     }
-    // })
-    // .catch(err => {
-    //     if (err.response) {
-    //         dispath(error(err.response.data.message || 'ERROR'));
-    //     } else {
-    //         dispath(error('API Error. Please contact administrator.'));
-    //     }
-    // }); 
+    dispath(getFWList([]));
+
+    axios.get(API_URL + `${WeightDataAPIPath}/GetAllByVesselId?VesselId=${data}`, config)
+    .then(res => {
+        if(!isEmpty(res.data))
+        {
+            let result = fwDataMapping(res.data);
+            dispath(getFWList(result));
+        }
+        else
+        {
+            dispath(error("Error fetching list of Weight Data"))
+        }
+    })
+    .catch(err => {
+        if (err.response) {
+            dispath(error(err.response.data.message || 'ERROR'));
+        } else {
+            dispath(error('API Error. Please contact administrator.'));
+        }
+    }); 
 }
 
 export const getAllLCList = (data) => dispath => {
