@@ -17,7 +17,8 @@ class vessel extends Component {
             data: [],
             isSearch: true,
             isAdd: false,
-            vesselObj: ''
+            vesselObj: '',
+            isEditVesselCode: true
         }
 
         this.columns = [
@@ -31,10 +32,10 @@ class vessel extends Component {
                 cell: row => {
                   return (
                       <>
-                        <Button className='btn btn-sm btn-primary mr-1' outline onClick={() => this.handleEdit(row.ID)}>
+                        <Button className='btn btn-sm btn-info mr-1' outline onClick={() => this.handleEdit(row.ID)}>
                             <i className="fa fa-edit" />
                         </Button>
-                        <Button className='btn btn-sm btn-danger' outline onClick={() => this.handleDelete(row.ID)}>
+                        <Button className='btn btn-sm btn-dark' outline onClick={() => this.handleDelete(row.ID)}>
                             <i className="fa fa-trash" />
                         </Button>
                       </>
@@ -43,12 +44,12 @@ class vessel extends Component {
                 }
             },
             {
-                name: 'Vessel Name',
-                selector: 'VesselName'
-            },
-            {
                 name: 'Vessel Code',
                 selector: 'VesselCode'
+            },
+            {
+                name: 'Vessel Name',
+                selector: 'VesselName'
             }
         ]
     }
@@ -107,12 +108,17 @@ class vessel extends Component {
             vesselName: obj.VesselName
         }
 
-        console.log(dataObj)
         this.setState({
-            vesselObj: dataObj
+            vesselObj: dataObj,
+            isEditVesselCode: false
         });
 
         this.setState({ isSearch: false, isAdd: true })
+
+        window.scrollTo({
+            top: 0,
+            behavior: 'smooth',
+        });
     }
 
     componentWillReceiveProps(nextProps) {
@@ -123,26 +129,30 @@ class vessel extends Component {
         }
         if (!isEmpty(nextProps.recordSaveStatus)) {
 
-            if(nextProps.recordSaveStatus === 999) {
-                this.sweetAlertHandler({ title: "Error", text: "Vessel code already exists. Please Enter New Vessel Code", type: 'error' })
+            if(nextProps.recordSaveStatus.status === 999) {
+                this.sweetAlertHandler({ title: "Error", text: nextProps.recordSaveStatus.message, type: 'error' })
             }
             else 
             {
                 this.sweetAlertHandler({ title: "Success", text: nextProps.recordSaveStatus, type: 'success' })
-
+                //this.clearValue();
                 setTimeout(() => {
                     window.location.reload(false);
                 }, 1800);
             }
         }
         if (!isEmpty(nextProps.recordUpdateStatus)) {
-            this.sweetAlertHandler({ title: "Success", text: nextProps.recordUpdateStatus, type: 'success' })
-            
-            // this.setState({ isSearch: true, isAdd: false })
-
-            setTimeout(() => {
-                window.location.reload(false);
-            }, 1500);
+            if(nextProps.recordUpdateStatus.status === 999) {
+                this.sweetAlertHandler({ title: "Error", text: nextProps.recordUpdateStatus.message, type: 'error' })
+            }
+            else 
+            {
+                this.sweetAlertHandler({ title: "Success", text: nextProps.recordUpdateStatus, type: 'success' })
+                //this.clearValue();
+                setTimeout(() => {
+                    window.location.reload(false);
+                }, 1800);
+            }
         }
         if (!isEmpty(nextProps.error)) {
             this.sweetAlertHandler({ title: "Error", text: nextProps.error, type: 'error' })
@@ -153,11 +163,13 @@ class vessel extends Component {
         this.props.getAllVesselList();
     }
 
-    handleAddVessel = () => {
+    handleAddVessel = (e) => {
+        this.clearValue(e);
         this.setState({ isSearch: false, isAdd: true })
     }
 
-    handleCloseAddVessel = () => {
+    handleCloseAddVessel = (e) => {
+        this.clearValue(e);
         this.setState({ isSearch: true, isAdd: false })
     }
 
@@ -188,59 +200,49 @@ class vessel extends Component {
         }
     }
 
-    getBase64 = file => {
-        return new Promise(resolve => {
-          let baseURL = "";
-          // Make new FileReader
-          let reader = new FileReader();
+    clearValue = (e) => {
+        this.setState({
+            vesselObj: {
+                id: '',
+                vesselName: '',
+                vesselCode: '',
+            },
+            isEditVesselCode: true
+            })
     
-          // Convert the file to base64 text
-          reader.readAsDataURL(file);
-    
-          // on reader load somthing...
-          reader.onload = () => {
-            // Make a fileInfo Object
-            console.log("Called", reader);
-            baseURL = reader.result;
-            console.log(baseURL);
-            resolve(baseURL);
-          };
-        });
-    };
+    }
 
 
     handleSubmit = async () => {
 
         console.log(this.state.vesselObj.loadingConditionFile)
-        let LoadingConditionFile = 'null';
-        let ConfigFile = 'null';
+        let LoadingConditionFile = '';
+        let ConfigFile = '';
 
-        // if(!isEmpty(this.state.vesselObj.loadingConditionFile)){
-        //     LoadingConditionFile = this.state.vesselObj.loadingConditionFile
-        // }
+        if(!isEmpty(this.state.vesselObj.loadingConditionFile)){
+            if(!isEmpty(this.state.vesselObj.loadingConditionFile.name)){
+                LoadingConditionFile = this.state.vesselObj.loadingConditionFile
+            }
+        }
          
-        // if(!isEmpty(this.state.vesselObj.configFile)){
-        //     ConfigFile = this.state.vesselObj.configFile
-        // }
+        if(!isEmpty(this.state.vesselObj.configFile)){
+            if(!isEmpty(this.state.vesselObj.configFile.name)) {
+                ConfigFile = this.state.vesselObj.configFile            
+            }
+
+        }
 
         if(isEmpty(this.state.vesselObj.id)){
 
-            if(!isEmpty(this.state.vesselObj.vesselName) && !isEmpty(this.state.vesselObj.vesselCode) && !isEmpty(LoadingConditionFile) && !isEmpty(ConfigFile))
+            if(!isEmpty(this.state.vesselObj.vesselName) && !isEmpty(this.state.vesselObj.vesselCode) && !isEmpty(LoadingConditionFile.name) && !isEmpty(ConfigFile.name))
             {
                 Swal.showLoading();
-
-                // const data = {
-                //     vesselName: this.state.vesselObj.vesselName,
-                //     vesselCode: this.state.vesselObj.vesselCode,
-                //     configFile: ConfigFile,
-                //     loadingConditionFile: LoadingConditionFile
-                // };
 
                 const formData = new FormData()
                 formData.append('vesselName', this.state.vesselObj.vesselName)
                 formData.append('vesselCode', this.state.vesselObj.vesselCode)
-                formData.append('configFile', this.state.vesselObj.configFile)
-                formData.append('loadingConditionFile', this.state.vesselObj.loadingConditionFile)
+                formData.append('configFile', ConfigFile)
+                formData.append('loadingConditionFile', LoadingConditionFile)
     
                 this.props.saveSingleVessel(formData);
             }
@@ -252,26 +254,21 @@ class vessel extends Component {
         }
         else{
                 Swal.showLoading();
-                // const data = {
-                //     id: this.state.vesselObj.id,
-                //     vesselName: this.state.vesselObj.vesselName,
-                //     vesselCode: this.state.vesselObj.vesselCode,
-                //     configFile: ConfigFile,
-                //     loadingConditionFile: LoadingConditionFile
-                // };
 
                 const formData = new FormData()
+
                 formData.append('id', this.state.vesselObj.id)
                 formData.append('vesselName', this.state.vesselObj.vesselName)
                 formData.append('vesselCode', this.state.vesselObj.vesselCode)
-                formData.append('configFile', this.state.vesselObj.configFile)
-                formData.append('loadingConditionFile', this.state.vesselObj.loadingConditionFile)
+                formData.append('configFile', ConfigFile)
+                formData.append('loadingConditionFile', LoadingConditionFile)
+
                 this.props.updateSingleVessel(formData);
         }
     }
 
     render() {
-        const { isSearch, isAdd, vesselObj } = this.state;
+        const { isSearch, isAdd, vesselObj, isEditVesselCode } = this.state;
         const columns = this.columns.map(col => {
             if (!col.editable) {
                 return col
@@ -290,15 +287,15 @@ class vessel extends Component {
                 <Row>
                     <Col>
                         {isSearch &&
-                        <Card title='Search Vessel' isOption>
+                        <Card title='Search Vessel'>
                             <Form.Row>
-                                <Form.Group as={Col} md="6">
-                                    <Form.Label>Vessel Name</Form.Label>
-                                    <Form.Control type="text" id="vesselName" placeholder="Vessel Name" />
-                                </Form.Group>
                                 <Form.Group as={Col} md="6">
                                     <Form.Label>Vessel Code</Form.Label>
                                     <Form.Control type="text" id="vesselCode" placeholder="Vessel Code" />
+                                </Form.Group>
+                                <Form.Group as={Col} md="6">
+                                    <Form.Label>Vessel Name</Form.Label>
+                                    <Form.Control type="text" id="vesselName" placeholder="Vessel Name" />
                                 </Form.Group>
                             </Form.Row>
                             <Form.Row>
@@ -312,19 +309,19 @@ class vessel extends Component {
                         </Card>
                         }
                         {isAdd &&
-                        <Card title='Manage Vessel' isOption>
+                        <Card title='Manage Vessel'>
                             <Form.Row>
                                 <Form.Group style={{display:'none'}}>
                                                 <Form.Label>ID</Form.Label>
                                                 <Form.Control type="text" id="id" name="id" onChange={(e) => this.handleFormChange(e, 'vesselObj')} value={vesselObj.id}/>
                                 </Form.Group>
                                 <Form.Group as={Col} md="3">
-                                    <Form.Label>Vessel Name</Form.Label>
-                                    <Form.Control type="text" id="vesselName" name="vesselName" placeholder="Vessel Name" onChange={(e) => this.handleFormChange(e, 'vesselObj')} value={vesselObj.vesselName}/>
+                                    <Form.Label>Vessel Code</Form.Label>
+                                    <Form.Control type="text" id="vesselCode" name="vesselCode" placeholder="Vessel Code" onChange={(e) => this.handleFormChange(e, 'vesselObj')} value={vesselObj.vesselCode} disabled={!isEditVesselCode} />
                                 </Form.Group>
                                 <Form.Group as={Col} md="3">
-                                    <Form.Label>Vessel Code</Form.Label>
-                                    <Form.Control type="text" id="vesselCode" name="vesselCode" placeholder="Vessel Code" onChange={(e) => this.handleFormChange(e, 'vesselObj')} value={vesselObj.vesselCode} />
+                                    <Form.Label>Vessel Name</Form.Label>
+                                    <Form.Control type="text" id="vesselName" name="vesselName" placeholder="Vessel Name" onChange={(e) => this.handleFormChange(e, 'vesselObj')} value={vesselObj.vesselName}/>
                                 </Form.Group>
                                 <Form.Group as={Col} md="3">
                                     <Form.Label>Upload Config File</Form.Label>
@@ -349,7 +346,7 @@ class vessel extends Component {
                                 <Form.Group as={Col} md="12">
                                     <center>
                                         <Button type={"button"} style={{ minWidth: '200px' }} variant={'info'} className={'m-3'} onClick={this.handleSubmit}>Save</Button>
-                                        <Button style={{ minWidth: '200px' }} variant={'dark'} className={'m-3'} onClick={this.handleCloseAddVessel}>Close</Button>
+                                        <Button style={{ minWidth: '200px' }} variant={'dark'} className={'m-3'} onClick={(e) => this.handleCloseAddVessel(e)}>Cancel</Button>
                                     </center>
                                 </Form.Group>
                             </Form.Row>
@@ -368,17 +365,18 @@ class vessel extends Component {
                                 </li>
                             </ul>
                             <div className="nav-item nav-grid f-view">
-                                <Button type={"button"} style={{ minWidth: '200px' }} variant={'info'} onClick={this.handleAddVessel}>Add Vessel</Button>
+                                <Button type={"button"} style={{ minWidth: '200px' }} variant={'info'} onClick={(e) => this.handleAddVessel(e)}>Add Vessel</Button>
                             </div>
                         </nav>
                     </Col>
                 </Row>
                 <Row>
                     <Col>
-                        <Card title='Vessels List' isOption>
+                        <Card title='Vessels List'>
                             <DataTable
                                 noHeader
                                 responsive
+                                theme="default"
                                 {...this.state}
                                 columns={columns}
                                 paginationPerPage={2}

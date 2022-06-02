@@ -72,7 +72,7 @@ export const saveSingleVessel = (data) => dispath => {
             dispath(clearAll());
         }
         else {
-            dispath(RecordSaveStatus(res.data.status)) 
+            dispath(RecordSaveStatus(res.data)) 
             dispath(clearAll());
         }
     })
@@ -89,12 +89,13 @@ export const saveSingleVessel = (data) => dispath => {
 export const updateSingleVessel = (data) => dispath => {
     axios.post(API_URL + `${APIPath}/UpdateVessel`, data, config)
     .then(res => {
-        if(res.data == true){
-            dispath(RecordUpdateStatus('Vessel Data Update Successfully.')) 
+        if(res.data.status === 0){
+            dispath(RecordUpdateStatus(res.data.message)) 
             dispath(clearAll());
         }
         else {
-            dispath(error('Vessel Data Update Request Error. Please contact administrator.'));
+            dispath(RecordUpdateStatus(res.data)) 
+            dispath(clearAll());
         }
     })
     .catch(err => {

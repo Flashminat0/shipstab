@@ -6,6 +6,7 @@ import {GET_TANK_LIST, GET_FW_LIST, GET_LC_LIST, GET_TANK_DETAILS, SAVE_RECORD_S
 import isEmpty from '../../util/isEmpty';
 import tankDataMapping from '../../util/tankDataMapping';
 import fwDataMapping from '../../util/fwDataMapping';
+import moment from "moment";
 
 const APIPath = "LoadingCondition";
 const TankDataAPIPath = "TankData";
@@ -74,6 +75,11 @@ export const getAllTankList = (data) => dispath => {
     .then(res => {
         if(!isEmpty(res.data))
         {
+            res.data.forEach(element => {
+                delete element.LoadingConditionID;
+                delete element.ID;
+            });
+
             let result = tankDataMapping(res.data);
             dispath(getTankList(result));
         }
@@ -99,6 +105,11 @@ export const getAllWeightList = (data) => dispath => {
     .then(res => {
         if(!isEmpty(res.data))
         {
+            res.data.forEach((element, key) => {
+                delete element.LoadingConditionID;
+                element.ID = "New" + moment().unix() + key;
+            });
+
             let result = fwDataMapping(res.data);
             dispath(getFWList(result));
         }

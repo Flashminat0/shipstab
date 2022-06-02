@@ -432,7 +432,7 @@ class Index extends React.Component {
     handleChange = (e, form, filed, maxVol) => {
 
         this.state.data.find(c => c.tankName === filed).fil = e.target.value
-        this.state.data.find(c => c.tankName === filed).weight = maxVol * e.target.value / 100;
+        this.state.data.find(c => c.tankName === filed).weight = (maxVol * e.target.value / 100).toString();
  
         this.setState({
             data: this.state.data
@@ -520,12 +520,13 @@ class Index extends React.Component {
             vesselID: this.state.dataObj.vesselName,
             loadingConditionName: this.state.dataObj.LCName,
             isActive: true,
-            TankData: this.state.data,
+            tankData: this.state.data,
             weightData: this.state.fixedWeightsData
         }
 
         this.props.saveTankDetail(loadingConData);
-
+        this.props.getAllTankList(this.state.dataObj.vesselName);
+        this.props.getAllWeightList(this.state.dataObj.vesselName);
     }
 
     handleSaveModal = () => {
@@ -594,7 +595,7 @@ class Index extends React.Component {
     }
 
     render() {
-        const { listOpen, isSolve, vesselList, isSave, isOpen, lcList, loadingConName } = this.state;
+        const { listOpen, isSolve, vesselList, isSave, isOpen, lcList, loadingConName, defaultTab } = this.state;
 
         const columns = this.columns.map(col => {
             if (!col.editable) {
@@ -677,8 +678,8 @@ class Index extends React.Component {
                             <Card.Body style={{ minHeight: '630px' }}>
                                 {listOpen &&
                                     <>
-                                    <Tabs defaultActiveKey="tank" className="mb-3">
-                                        <Tab eventKey="tank" title="Tank">
+                                    <Tabs defaultActiveKey="tank" className="mb-3" onSelect={this.handleSelect}>
+                                        <Tab eventKey="tank" title="Tank" style={{minHeight: '390px'}}>
                                             <DataTable
                                                 noHeader
                                                 responsive
