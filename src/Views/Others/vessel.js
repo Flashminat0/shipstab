@@ -219,13 +219,13 @@ class vessel extends Component {
         let LoadingConditionFile = '';
         let ConfigFile = '';
 
-        if(!isEmpty(this.state.vesselObj.loadingConditionFile)){
+        if(this.state.vesselObj.loadingConditionFile != null){
             if(!isEmpty(this.state.vesselObj.loadingConditionFile.name)){
                 LoadingConditionFile = this.state.vesselObj.loadingConditionFile
             }
         }
          
-        if(!isEmpty(this.state.vesselObj.configFile)){
+        if(this.state.vesselObj.configFile != null){
             if(!isEmpty(this.state.vesselObj.configFile.name)) {
                 ConfigFile = this.state.vesselObj.configFile            
             }
@@ -234,7 +234,7 @@ class vessel extends Component {
 
         if(isEmpty(this.state.vesselObj.id)){
 
-            if(!isEmpty(this.state.vesselObj.vesselName) && !isEmpty(this.state.vesselObj.vesselCode) && !isEmpty(LoadingConditionFile.name) && !isEmpty(ConfigFile.name))
+            if(!isEmpty(this.state.vesselObj.vesselName) && !isEmpty(this.state.vesselObj.vesselCode) && this.state.vesselObj.loadingConditionFile != null && this.state.vesselObj.configFile != null)
             {
                 Swal.showLoading();
 
