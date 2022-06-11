@@ -218,6 +218,11 @@ const reducer = (state = initialState, action) => {
                   ...state,
                   loggedInUserDetails: action.userDetails
             }
+        case actionTypes.ERROR:
+                return {
+                  ...state,
+                  error: action.error
+            }
         default:
             return state;
     }

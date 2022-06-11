@@ -45,10 +45,17 @@ export const signInUser = (data) => dispath =>{
         }
         else{
             dispath(error(res.data.message));
+            dispath(clearError());
         }     
     })
     .catch(err => {
-        dispath(error(err.response.data.message || 'ERROR'));
+        if (err.response) {
+            dispath(error(err.response.data.message || 'ERROR'));
+            dispath(clearError());
+        } else {
+            dispath(error('API Error. Please contact administrator.'));
+            dispath(clearError());
+        }
     });  
 }
 
