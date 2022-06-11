@@ -12,6 +12,7 @@ import Loader from "../Loader";
 import routes from "../../../routes";
 import Aux from "../../../hoc/_Aux";
 import * as actionTypes from "../../../store/actions";
+import ProtectedRoute from "../../ProtectedRoute";
 
 //import '../../../app.scss';
 
@@ -45,14 +46,15 @@ class AdminLayout extends Component {
 
         const menu = routes.map((route, index) => {
             return (route.component) ? (
-                <Route
+                <ProtectedRoute
+                    path="/"
                     key={index}
                     path={route.path}
                     exact={route.exact}
+                    roles={route.roles}
                     name={route.name}
-                    render={props => (
-                        <route.component {...props} />
-                    )} />
+                    component={route.component}
+                    />
             ) : (null);
         });
 

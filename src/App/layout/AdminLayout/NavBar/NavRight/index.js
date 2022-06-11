@@ -8,10 +8,22 @@ import DEMO from "../../../../../store/constant";
 import Avatar1 from '../../../../../assets/images/user/avatar-1.jpg';
 import Avatar2 from '../../../../../assets/images/user/avatar-2.jpg';
 
+import {getWithExpiry, removeKey} from '../../../../../util/customSessionManager';
+import isEmpty from '../../../../../util/isEmpty'
+
 class NavRight extends Component {
     state = {
         listOpen: false
     };
+
+    handleLogout() {
+        //e.preventDefault();
+        removeKey("userDetails");
+        removeKey("authToken");
+        window.location.reload(false);
+
+        //this.props.history.push(`/auth/login`);
+    }
 
     render() {
 
@@ -102,7 +114,7 @@ class NavRight extends Component {
                                     <li><a href={DEMO.BLANK_LINK} className="dropdown-item"><i className="feather icon-settings"/> Settings</a></li>
                                     <li><a href={DEMO.BLANK_LINK} className="dropdown-item"><i className="feather icon-user"/> Profile</a></li>
                                     <li><a href={DEMO.BLANK_LINK} className="dropdown-item"><i className="feather icon-mail"/> My Messages</a></li>
-                                    <li><a href={DEMO.BLANK_LINK} className="dropdown-item"><i className="feather icon-lock"/> Lock Screen</a></li>
+                                    <li><a href={DEMO.BLANK_LINK} className="dropdown-item" onClick={this.handleLogout}><i className="feather icon-log-out"/> Logout</a></li>
                                 </ul>
                             </Dropdown.Menu>
                         </Dropdown>

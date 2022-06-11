@@ -5,6 +5,7 @@ export default {
             title: 'Navigation',
             type: 'group',
             icon: 'icon-navigation',
+            roles: ["Admin", "User"],
             children: [
                 {
                     id: 'dashboard',
@@ -12,7 +13,8 @@ export default {
                     type: 'item',
                     url: '/dashboard',
                     classes: 'nav-item',
-                    icon: 'feather icon-home'
+                    icon: 'feather icon-home',
+                    roles: ["Admin", "User"]
                 },
                 {
                     id: 'stability',
@@ -20,7 +22,8 @@ export default {
                     type: 'item',
                     url: '/stability',
                     classes: 'nav-item',
-                    icon: 'feather icon-activity'
+                    icon: 'feather icon-activity',
+                    roles: ["Admin", "User"]
                 },
                 {
                     id: 'other',
@@ -31,18 +34,21 @@ export default {
                         title: 'New',
                         type: 'badge-warning'
                     },
+                    roles: ["Admin"],
                     children: [
                         {
                             id: 'user',
                             title: 'Users',
                             type: 'item',
-                            url: '/others/user'
+                            url: '/others/user',
+                            roles: ["Admin"]
                         },
                         {
                             id: 'vessel',
                             title: 'Vessels',
                             type: 'item',
-                            url: '/others/vessel'
+                            url: '/others/vessel',
+                            roles: ["Admin"]
                         }
                     ]
                 }

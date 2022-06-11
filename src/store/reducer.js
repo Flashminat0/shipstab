@@ -213,6 +213,11 @@ const reducer = (state = initialState, action) => {
                   fwList: null,
                   recordDeleteStatus: null,
             }
+        case actionTypes.SAVE_USER_DETAILS:
+                return {
+                  ...state,
+                  loggedInUserDetails: action.userDetails
+            }
         default:
             return state;
     }

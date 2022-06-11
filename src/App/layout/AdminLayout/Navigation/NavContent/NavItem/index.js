@@ -9,6 +9,8 @@ import NavIcon from "./../NavIcon";
 import NavBadge from "./../NavBadge";
 import * as actionTypes from "../../../../../../store/actions";
 
+import {getWithExpiry, removeKey} from '../../../../../../util/customSessionManager';
+import isEmpty from '../../../../../../util/isEmpty';
 class NavItem extends Component {
 
     render() {
@@ -55,6 +57,21 @@ class NavItem extends Component {
                     <li className={this.props.item.classes}>{subContent}</li>
                 );
             }
+        }
+
+        const userDetails = getWithExpiry('userDetails');
+
+        var userRole = null;
+
+        if(!isEmpty(userDetails))
+            userRole = userDetails.userRole;
+
+        try {
+            if(isEmpty((this.props.item.roles).find(data => data == userRole))){
+                mainContent = '';
+            }
+        } catch (error) {
+            
         }
 
         return (

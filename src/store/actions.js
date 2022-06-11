@@ -16,6 +16,9 @@ export const BOX_LAYOUT = 'BOX_LAYOUT';
 export const NAV_CONTENT_LEAVE = 'NAV_CONTENT_LEAVE';
 export const NAV_COLLAPSE_LEAVE = 'NAV_COLLAPSE_LEAVE';
 
+//Login
+export const SAVE_USER_DETAILS = 'SAVE_USER_DETAILS';
+
 //TANK LIST
 export const GET_TANK_LIST = 'GET_TANK_LIST';
 export const GET_LC_LIST = 'GET_LC_LIST';
