@@ -36,7 +36,7 @@ export const signInUser = (data) => dispath =>{
                 firstName: res.data.employee.firstName, 
                 middleName: res.data.employee.middleName,
                 lastName: res.data.employee.lastName,
-                userRole: res.data.employee.isActive ? 'Admin' : 'User'
+                userRole: res.data.employee.IsAdmin === true ? 'Admin' : 'User'
             }
 
             setWithExpiry('userDetails',user)
