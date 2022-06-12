@@ -8,7 +8,7 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import DataTable from 'react-data-table-component';
 import isEmpty from '../../util/isEmpty';
-import { getAllVesselList, saveSingleVessel, updateSingleVessel, deletVessel } from "../../store/api/vessel";
+import { getAllUserList, saveSingleUser, updateSingleUser, deletUser } from "../../store/api/user";
 class user extends Component {
     constructor() {
         super();
@@ -18,7 +18,8 @@ class user extends Component {
             isSearch: true,
             isAdd: false,
             userObj: '',
-            isEditUserCode: true
+            isEditUserCode: true,
+            isSystemUser: false
         }
 
         this.columns = [
@@ -44,12 +45,24 @@ class user extends Component {
                 }
             },
             {
-                name: 'Vessel Code',
-                selector: 'VesselCode'
+                name: 'User Code',
+                selector: 'EmployeeNumber'
             },
             {
-                name: 'Vessel Name',
-                selector: 'VesselName'
+                name: 'Full Name',
+                selector: 'FullName'
+            },
+            {
+                name: 'Username',
+                selector: 'UserName'
+            },
+            {
+                name: 'User Role',
+                cell: row => {
+                    return (
+                        <>{row.IsAdmin === true ? <span className="badge badge-info">Admin</span> : <span className="badge badge-dark">User</span> }</>
+                    )
+                  }
             }
         ]
     }
@@ -68,7 +81,7 @@ class user extends Component {
 
         MySwal.fire({
             title: 'Are you sure?',
-            text: 'Once deleted, you will not be able to recover this Vessel!',
+            text: 'Once deleted, you will not be able to recover this user!',
             type: 'warning',
             showCloseButton: true,
             showCancelButton: true
@@ -80,7 +93,7 @@ class user extends Component {
                     ID: id
                 };
 
-                this.props.deletVessel(data);
+                this.props.deletUser(data);
 
                 var index = this.state.data.indexOf(deleteObj);
 
@@ -92,7 +105,7 @@ class user extends Component {
                     data: this.state.data
                 })
             } else {
-                return MySwal.fire('', 'Your Vessel record is safe!', 'error');
+                return MySwal.fire('', 'Your user record is safe!', 'info');
             }
         }).finally(() => {
             this.setState({ isOpen: true })
@@ -102,10 +115,25 @@ class user extends Component {
     handleEdit = (id) => {
         let obj = this.state.data.find(c => c.ID === id);
 
-        const dataObj = {
-            id: id,
-            vesselCode: obj.VesselCode,
-            vesselName: obj.VesselName
+        let dataObj = {
+            ID: id,
+            EmployeeNumber: obj.EmployeeNumber,
+            FirstName: obj.FirstName,
+            MiddleName: obj.MiddleName,
+            LastName: obj.LastName
+        }
+
+        if(obj.IsUser) {
+
+            this.setState({
+                isSystemUser : true
+            })
+
+            dataObj = {
+                ...dataObj,
+                UserName: obj.UserName,
+                UserRole: obj.IsAdmin === true ? "Admin" : "User"
+            }
         }
 
         this.setState({
@@ -122,37 +150,24 @@ class user extends Component {
     }
 
     componentWillReceiveProps(nextProps) {
-        if (!isEmpty(nextProps.vesselList)) {
+        if (!isEmpty(nextProps.userList)) {
             this.setState({
-                data: nextProps.vesselList,
+                data: nextProps.userList,
             });
         }
         if (!isEmpty(nextProps.recordSaveStatus)) {
-
-            if(nextProps.recordSaveStatus.status === 999) {
-                this.sweetAlertHandler({ title: "Error", text: nextProps.recordSaveStatus.message, type: 'error' })
-            }
-            else 
-            {
-                this.sweetAlertHandler({ title: "Success", text: nextProps.recordSaveStatus, type: 'success' })
-                //this.clearValue();
-                setTimeout(() => {
-                    window.location.reload(false);
-                }, 1800);
-            }
+            this.sweetAlertHandler({ title: "Success", text: nextProps.recordSaveStatus, type: 'success' })
+            //this.clearValue();
+            setTimeout(() => {
+                window.location.reload(false);
+            }, 1800);
         }
         if (!isEmpty(nextProps.recordUpdateStatus)) {
-            if(nextProps.recordUpdateStatus.status === 999) {
-                this.sweetAlertHandler({ title: "Error", text: nextProps.recordUpdateStatus.message, type: 'error' })
-            }
-            else 
-            {
-                this.sweetAlertHandler({ title: "Success", text: nextProps.recordUpdateStatus, type: 'success' })
-                //this.clearValue();
-                setTimeout(() => {
-                    window.location.reload(false);
-                }, 1800);
-            }
+            this.sweetAlertHandler({ title: "Success", text: nextProps.recordUpdateStatus, type: 'success' })
+            //this.clearValue();
+            setTimeout(() => {
+                window.location.reload(false);
+            }, 1800);
         }
         if (!isEmpty(nextProps.error)) {
             this.sweetAlertHandler({ title: "Error", text: nextProps.error, type: 'error' })
@@ -160,7 +175,7 @@ class user extends Component {
     }
 
     componentDidMount() {
-        this.props.getAllVesselList();
+        this.props.getAllUserList();
     }
 
     handleAddUser = (e) => {
@@ -168,32 +183,28 @@ class user extends Component {
         this.setState({ isSearch: false, isAdd: true })
     }
 
+    handleIsSystemUser = (e) => {
+        this.setState({ isSystemUser: true })
+    }
+
+    handleIsNormalUser = (e) => {
+        this.setState({ isSystemUser: false })
+    }
+
     handleCloseAddUser = (e) => {
         this.clearValue(e);
-        this.setState({ isSearch: true, isAdd: false })
+        this.setState({ isSearch: true, isAdd: false, isSystemUser: false })
     }
 
     handleFormChange = (e, form, fieldName, innerFieldName) => {
         try {
             const { name, value } = e.target;
-            if(name == 'configFile' || name == 'loadingConditionFile'){
-
-                console.log(e.target.files)
-                this.setState({
-                    [form]: {
-                        ...this.state[form],
-                        [name]: e.target.files[0]
-                    }
-                })
-            }
-            else{
             this.setState({
                 [form]: {
                     ...this.state[form],
                     [name]: value
                 }
-                })
-            }
+            })
         }
         catch (err) {
             console.log(err);
@@ -203,48 +214,59 @@ class user extends Component {
     clearValue = (e) => {
         this.setState({
             userObj: {
-                id: '',
-                vesselName: '',
-                vesselCode: '',
+                ID: '',
+                EmployeeNumber: '',
+                FirstName: '',
+                MiddleName: '',
+                LastName: '',
+                UserName: '',
+                Password: '',
+                ConfPassword: '',
+                UserRole: '',
             },
-            isEditUserCode: true
-            })
+            isEditUserCode: true,
+            isSystemUser: false
+        })
     
     }
 
 
     handleSubmit = async () => {
 
-        console.log(this.state.userObj.loadingConditionFile)
-        let LoadingConditionFile = '';
-        let ConfigFile = '';
+        if(isEmpty(this.state.userObj.ID)){
 
-        if(this.state.userObj.loadingConditionFile != null){
-            if(!isEmpty(this.state.userObj.loadingConditionFile.name)){
-                LoadingConditionFile = this.state.userObj.loadingConditionFile
-            }
-        }
-         
-        if(this.state.userObj.configFile != null){
-            if(!isEmpty(this.state.userObj.configFile.name)) {
-                ConfigFile = this.state.userObj.configFile            
-            }
-
-        }
-
-        if(isEmpty(this.state.userObj.id)){
-
-            if(!isEmpty(this.state.userObj.vesselName) && !isEmpty(this.state.userObj.vesselCode) && this.state.userObj.loadingConditionFile != null && this.state.userObj.configFile != null)
+            if(!isEmpty(this.state.userObj.EmployeeNumber))
             {
                 Swal.showLoading();
 
                 const formData = new FormData()
-                formData.append('vesselName', this.state.userObj.vesselName)
-                formData.append('vesselCode', this.state.userObj.vesselCode)
-                formData.append('configFile', ConfigFile)
-                formData.append('loadingConditionFile', LoadingConditionFile)
-    
-                this.props.saveSingleVessel(formData);
+                formData.append('EmployeeNumber', this.state.userObj.EmployeeNumber)
+                formData.append('FirstName', this.state.userObj.FirstName)
+                formData.append('MiddleName', this.state.userObj.MiddleName)
+                formData.append('LastName', this.state.userObj.LastName)
+                formData.append('IsUser', this.state.isSystemUser ? true : false)
+                formData.append('IsLocked', false)
+                formData.append('IsActive', true)
+
+                    if(this.state.isSystemUser && !isEmpty(this.state.userObj.Password) && !isEmpty(this.state.userObj.ConfPassword)) {
+                        formData.append('UserName', this.state.userObj.UserName)
+                        formData.append('Password', this.state.userObj.Password)
+                        formData.append('IsAdmin', this.state.userObj.UserRole === "Admin" ? true : false)  
+                        
+                        if(this.state.userObj.Password === this.state.userObj.ConfPassword){ 
+                            this.props.saveSingleUser(formData);
+                        }
+                        else {
+                            this.sweetAlertHandler({ title: "Error", text: 'Confirm password not match with password', type: 'error' })
+                        }
+                    }
+                    else if(this.state.isSystemUser){
+                        this.sweetAlertHandler({ title: "Error", text: 'Please enter password and confirm password', type: 'error' })
+                    }
+                    else {
+                        this.props.saveSingleUser(formData);
+                    }
+
             }
             else
             {
@@ -257,18 +279,41 @@ class user extends Component {
 
                 const formData = new FormData()
 
-                formData.append('id', this.state.userObj.id)
-                formData.append('vesselName', this.state.userObj.vesselName)
-                formData.append('vesselCode', this.state.userObj.vesselCode)
-                formData.append('configFile', ConfigFile)
-                formData.append('loadingConditionFile', LoadingConditionFile)
+                formData.append('ID', this.state.userObj.ID)
+                formData.append('EmployeeNumber', this.state.userObj.EmployeeNumber)
+                formData.append('FirstName', this.state.userObj.FirstName)
+                formData.append('MiddleName', this.state.userObj.MiddleName)
+                formData.append('LastName', this.state.userObj.LastName)
+                formData.append('IsUser', this.state.isSystemUser ? true : false)
+                formData.append('IsLocked', false)
+                formData.append('IsActive', true)
 
-                this.props.updateSingleVessel(formData);
+                if(this.state.isSystemUser) {
+                    formData.append('UserName', this.state.userObj.UserName)
+                    formData.append('IsAdmin', this.state.userObj.UserRole === "Admin" ? true : false) 
+                    if(!isEmpty(this.state.userObj.Password) && !isEmpty(this.state.userObj.ConfPassword))
+                    {
+                        formData.append('Password', this.state.userObj.Password)
+         
+                        if(this.state.userObj.Password === this.state.userObj.ConfPassword){ 
+                            this.props.updateSingleUser(formData);
+                        }
+                        else {
+                            this.sweetAlertHandler({ title: "Error", text: 'Confirm password not match with password', type: 'error' })
+                        }
+                    }
+                    else {
+                        this.props.updateSingleUser(formData);
+                    }
+                }
+                else {
+                    this.props.updateSingleUser(formData);
+                }
         }
     }
 
     render() {
-        const { isSearch, isAdd, userObj, isEditUserCode } = this.state;
+        const { isSearch, isAdd, userObj, isEditUserCode, isSystemUser } = this.state;
         const columns = this.columns.map(col => {
             if (!col.editable) {
                 return col
@@ -321,35 +366,58 @@ class user extends Component {
                             <Form.Row>
                                 <Form.Group style={{display:'none'}}>
                                                 <Form.Label>ID</Form.Label>
-                                                <Form.Control type="text" id="id" name="id" onChange={(e) => this.handleFormChange(e, 'userObj')} value={userObj.id}/>
+                                                <Form.Control type="text" id="ID" name="ID" onChange={(e) => this.handleFormChange(e, 'userObj')} value={userObj.ID}/>
                                 </Form.Group>
                                 <Form.Group as={Col} md="3">
                                     <Form.Label>User Code</Form.Label>
-                                    <Form.Control type="text" id="userCode" name="userCode" placeholder="User Code" onChange={(e) => this.handleFormChange(e, 'userObj')} value={userObj.vesselCode} disabled={!isEditUserCode} />
+                                    <Form.Control type="text" id="EmployeeNumber" name="EmployeeNumber" placeholder="User Code" onChange={(e) => this.handleFormChange(e, 'userObj')} value={userObj.EmployeeNumber} disabled={!isEditUserCode} />
                                 </Form.Group>
                                 <Form.Group as={Col} md="3">
-                                    <Form.Label>User Name</Form.Label>
-                                    <Form.Control type="text" id="userName" name="userName" placeholder="Vessel Name" onChange={(e) => this.handleFormChange(e, 'userObj')} value={userObj.vesselName}/>
+                                    <Form.Label>First Name</Form.Label>
+                                    <Form.Control type="text" id="FirstName" name="FirstName" placeholder="First Name" onChange={(e) => this.handleFormChange(e, 'userObj')} value={userObj.FirstName}/>
                                 </Form.Group>
                                 <Form.Group as={Col} md="3">
-                                    <Form.Label>Upload Config File</Form.Label>
-                                    <Form.Control
-                                        type="file"
-                                        id="configFile"
-                                        name="configFile"
-                                        onChange={(e) => this.handleFormChange(e, 'userObj')}
-                                    />
+                                    <Form.Label>Middle Name</Form.Label>
+                                    <Form.Control type="text" id="MiddleName" name="MiddleName" placeholder="Middle Name" onChange={(e) => this.handleFormChange(e, 'userObj')} value={userObj.MiddleName}/>
                                 </Form.Group>
                                 <Form.Group as={Col} md="3">
-                                    <Form.Label>Upload Loading Condition File</Form.Label>
-                                    <Form.Control
-                                        type="file"
-                                        id="loadingConditionFile"
-                                        name="loadingConditionFile"
-                                        onChange={(e) => this.handleFormChange(e, 'userObj')}
-                                    />
+                                    <Form.Label>Last Name</Form.Label>
+                                    <Form.Control type="text" id="LastName" name="LastName" placeholder="Last Name" onChange={(e) => this.handleFormChange(e, 'userObj')} value={userObj.LastName}/>
+                                </Form.Group>
+                                {!isSystemUser && 
+                                    <Button className='btn btn-sm btn-info' onClick={(e) => this.handleIsSystemUser(e)}>Is System User</Button>
+                                }
+                                {isSystemUser && 
+                                    <Button className='btn btn-sm btn-dark' onClick={(e) => this.handleIsNormalUser(e)}>Is Normal User</Button>
+                                }
+                            </Form.Row>
+                            {isSystemUser && 
+                            <>
+                            <hr />
+                            <Form.Row>
+                                <Form.Group as={Col} md="3">
+                                    <Form.Label>Username</Form.Label>
+                                    <Form.Control type="text" id="UserName" name="UserName" placeholder="Username" onChange={(e) => this.handleFormChange(e, 'userObj')} value={userObj.UserName}/>
+                                </Form.Group>
+                                <Form.Group as={Col} md="3">
+                                    <Form.Label>Password</Form.Label>
+                                    <Form.Control type="password" id="Password" name="Password" placeholder="Password" onChange={(e) => this.handleFormChange(e, 'userObj')}/>
+                                </Form.Group>
+                                <Form.Group as={Col} md="3">
+                                    <Form.Label>Confirm Password</Form.Label>
+                                    <Form.Control type="password" id="ConfPassword" name="ConfPassword" placeholder="Confirm Password" onChange={(e) => this.handleFormChange(e, 'userObj')}/>
+                                </Form.Group>
+                                <Form.Group as={Col} md="3">
+                                    <Form.Label>User Role</Form.Label>
+                                    <select className="form-control add_task_todo" onChange={(e) => this.handleFormChange(e, 'userObj')} name="UserRole" id="UserRole"  value={userObj.UserRole}>
+                                        <option value=''>Select User Role</option>
+                                        <option value='Admin'>Admin</option>
+                                        <option value='User'>User</option>
+                                    </select>
                                 </Form.Group>
                             </Form.Row>
+                            </>
+                            }
                             <Form.Row>
                                 <Form.Group as={Col} md="12">
                                     <center>
@@ -380,7 +448,7 @@ class user extends Component {
                 </Row>
                 <Row>
                     <Col>
-                        <Card title='Vessels List'>
+                        <Card title='Users List'>
                             <DataTable
                                 noHeader
                                 responsive
@@ -403,17 +471,17 @@ class user extends Component {
 }
 
 const mapStateToProps = state => ({
-    vesselList: state.vesselList,
+    userList: state.userList,
     recordSaveStatus: state.recordSaveStatus,
     recordUpdateStatus: state.recordUpdateStatus,
     error: state.error
 });
 
 const mapDispatchToProps = dispath => ({
-    getAllVesselList: (vesselList) => dispath(getAllVesselList(vesselList)),
-    saveSingleVessel: (userObj) => dispath(saveSingleVessel(userObj)),
-    updateSingleVessel: (userObj) => dispath(updateSingleVessel(userObj)),
-    deletVessel: (data) => dispath(deletVessel(data))
+    getAllUserList: (userList) => dispath(getAllUserList(userList)),
+    saveSingleUser: (userObj) => dispath(saveSingleUser(userObj)),
+    updateSingleUser: (userObj) => dispath(updateSingleUser(userObj)),
+    deletUser: (data) => dispath(deletUser(data))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps) (user);

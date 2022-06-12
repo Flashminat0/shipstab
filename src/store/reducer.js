@@ -223,6 +223,18 @@ const reducer = (state = initialState, action) => {
                   ...state,
                   error: action.error
             }
+        case actionTypes.GET_USER_LIST:
+                return {
+                  ...state,
+                  userList: action.userList
+            }
+        case actionTypes.CLEAR_ALL_USER_DATA:
+                return {
+                  ...state,
+                  userList: null,
+                  recordSaveStatus: null,
+                  recordUpdateStatus: null
+            }
         default:
             return state;
     }
