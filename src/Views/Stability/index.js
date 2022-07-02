@@ -731,7 +731,7 @@ class Index extends React.Component {
                                              </Form>
                                          </Modal.Body>
                                          <Modal.Footer>
-                                             <Button variant="secondary" onClick={this.handleSaveModalClose}>Close</Button>
+                                             <Button variant="secondary" onClick={this.handleSaveModalClose}>Cancel</Button>
                                              <Button variant="primary" onClick={this.handleSave}>Save Changes</Button>
                                          </Modal.Footer>
                                      </Modal>

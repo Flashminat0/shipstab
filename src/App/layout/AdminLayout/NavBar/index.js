@@ -70,7 +70,7 @@ class NavBar extends Component {
                     <a href={DEMO.BLANK_LINK} className="b-brand">
                         {/* <img id="main-logo" src={mainLogo} alt="" className="logo" /> */}
 
-                        <h3 style={{color: '#fff', margin: 0}}>ShipStability</h3> 
+                        <h3 style={{color: '#fff', margin: 0}}>ShipSafe</h3>
 
                     </a>
                     <a className="mob-toggler" href={DEMO.BLANK_LINK} onClick={() => this.setState(prevState => {return {rightToggle: !prevState.rightToggle}})}><i className="feather icon-more-vertical"/></a>

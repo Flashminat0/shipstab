@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { connect } from "react-redux";
+import {connect} from "react-redux";
 import {Row, Col, Form, Button} from 'react-bootstrap';
 
 import Aux from "../../hoc/_Aux";
@@ -8,7 +8,9 @@ import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 import DataTable from 'react-data-table-component';
 import isEmpty from '../../util/isEmpty';
-import { getAllUserList, saveSingleUser, updateSingleUser, deletUser } from "../../store/api/user";
+import {getAllUserList, saveSingleUser, updateSingleUser, deletUser} from "../../store/api/user";
+import {getAllVesselList} from "../../store/api/vessel";
+
 class user extends Component {
     constructor() {
         super();
@@ -19,7 +21,8 @@ class user extends Component {
             isAdd: false,
             userObj: '',
             isEditUserCode: true,
-            isSystemUser: false
+            isSystemUser: false,
+            vesselList: [],
         }
 
         this.columns = [
@@ -31,17 +34,18 @@ class user extends Component {
             {
                 name: 'Actions',
                 cell: row => {
-                  return (
-                      <>
-                        <Button className='btn btn-sm btn-info mr-1' outline onClick={() => this.handleEdit(row.ID)}>
-                            <i className="fa fa-edit" />
-                        </Button>
-                        <Button className='btn btn-sm btn-dark' outline onClick={() => this.handleDelete(row.ID)}>
-                            <i className="fa fa-trash" />
-                        </Button>
-                      </>
-                    
-                  )
+                    return (
+                        <>
+                            <Button className='btn btn-sm btn-info mr-1' outline
+                                    onClick={() => this.handleEdit(row.ID)}>
+                                <i className="fa fa-edit"/>
+                            </Button>
+                            <Button className='btn btn-sm btn-dark' outline onClick={() => this.handleDelete(row.ID)}>
+                                <i className="fa fa-trash"/>
+                            </Button>
+                        </>
+
+                    )
                 }
             },
             {
@@ -60,9 +64,10 @@ class user extends Component {
                 name: 'User Role',
                 cell: row => {
                     return (
-                        <>{row.IsAdmin === true ? <span className="badge badge-info">Admin</span> : <span className="badge badge-dark">User</span> }</>
+                        <>{row.IsAdmin === true ? <span className="badge badge-info">Admin</span> :
+                            <span className="badge badge-dark">User</span>}</>
                     )
-                  }
+                }
             }
         ]
     }
@@ -75,7 +80,7 @@ class user extends Component {
             type: alert.type
         });
     };
-    
+
     handleDelete = (id) => {
         const MySwal = withReactContent(Swal);
 
@@ -97,7 +102,7 @@ class user extends Component {
 
                 var index = this.state.data.indexOf(deleteObj);
 
-                if (index > -1) { 
+                if (index > -1) {
                     this.state.data.splice(index, 1);
                 }
 
@@ -108,7 +113,7 @@ class user extends Component {
                 return MySwal.fire('', 'Your user record is safe!', 'info');
             }
         }).finally(() => {
-            this.setState({ isOpen: true })
+            this.setState({isOpen: true})
         });
     }
 
@@ -123,10 +128,10 @@ class user extends Component {
             LastName: obj.LastName
         }
 
-        if(obj.IsUser) {
+        if (obj.IsUser) {
 
             this.setState({
-                isSystemUser : true
+                isSystemUser: true
             })
 
             dataObj = {
@@ -141,7 +146,7 @@ class user extends Component {
             isEditUserCode: false
         });
 
-        this.setState({ isSearch: false, isAdd: true })
+        this.setState({isSearch: false, isAdd: true})
 
         window.scrollTo({
             top: 0,
@@ -156,57 +161,62 @@ class user extends Component {
             });
         }
         if (!isEmpty(nextProps.recordSaveStatus)) {
-            this.sweetAlertHandler({ title: "Success", text: nextProps.recordSaveStatus, type: 'success' })
+            this.sweetAlertHandler({title: "Success", text: nextProps.recordSaveStatus, type: 'success'})
             //this.clearValue();
             setTimeout(() => {
                 window.location.reload(false);
             }, 1800);
         }
+        if (!isEmpty(nextProps.vesselList)) {
+            this.setState({
+                vesselList: nextProps.vesselList,
+            });
+        }
         if (!isEmpty(nextProps.recordUpdateStatus)) {
-            this.sweetAlertHandler({ title: "Success", text: nextProps.recordUpdateStatus, type: 'success' })
+            this.sweetAlertHandler({title: "Success", text: nextProps.recordUpdateStatus, type: 'success'})
             //this.clearValue();
             setTimeout(() => {
                 window.location.reload(false);
             }, 1800);
         }
         if (!isEmpty(nextProps.error)) {
-            this.sweetAlertHandler({ title: "Error", text: nextProps.error, type: 'error' })
+            this.sweetAlertHandler({title: "Error", text: nextProps.error, type: 'error'})
         }
     }
 
     componentDidMount() {
         this.props.getAllUserList();
+        this.props.getAllVesselList();
     }
 
     handleAddUser = (e) => {
         this.clearValue(e);
-        this.setState({ isSearch: false, isAdd: true })
+        this.setState({isSearch: false, isAdd: true})
     }
 
     handleIsSystemUser = (e) => {
-        this.setState({ isSystemUser: true })
+        this.setState({isSystemUser: true})
     }
 
     handleIsNormalUser = (e) => {
-        this.setState({ isSystemUser: false })
+        this.setState({isSystemUser: false})
     }
 
     handleCloseAddUser = (e) => {
         this.clearValue(e);
-        this.setState({ isSearch: true, isAdd: false, isSystemUser: false })
+        this.setState({isSearch: true, isAdd: false, isSystemUser: false})
     }
 
     handleFormChange = (e, form, fieldName, innerFieldName) => {
         try {
-            const { name, value } = e.target;
+            const {name, value} = e.target;
             this.setState({
                 [form]: {
                     ...this.state[form],
                     [name]: value
                 }
             })
-        }
-        catch (err) {
+        } catch (err) {
             console.log(err);
         }
     }
@@ -223,20 +233,24 @@ class user extends Component {
                 Password: '',
                 ConfPassword: '',
                 UserRole: '',
+                vessel : {
+
+                }
             },
             isEditUserCode: true,
             isSystemUser: false
         })
-    
+
     }
+
+
 
 
     handleSubmit = async () => {
 
-        if(isEmpty(this.state.userObj.ID)){
+        if (isEmpty(this.state.userObj.ID)) {
 
-            if(!isEmpty(this.state.userObj.EmployeeNumber))
-            {
+            if (!isEmpty(this.state.userObj.EmployeeNumber)) {
                 Swal.showLoading();
 
                 const formData = new FormData()
@@ -247,73 +261,77 @@ class user extends Component {
                 formData.append('IsUser', this.state.isSystemUser ? true : false)
                 formData.append('IsLocked', false)
                 formData.append('IsActive', true)
+                formData.append('vessel', this.state.userObj.vessel.ID)
 
-                    if(this.state.isSystemUser && !isEmpty(this.state.userObj.Password) && !isEmpty(this.state.userObj.ConfPassword)) {
-                        formData.append('UserName', this.state.userObj.UserName)
-                        formData.append('Password', this.state.userObj.Password)
-                        formData.append('IsAdmin', this.state.userObj.UserRole === "Admin" ? true : false)  
-                        
-                        if(this.state.userObj.Password === this.state.userObj.ConfPassword){ 
-                            this.props.saveSingleUser(formData);
-                        }
-                        else {
-                            this.sweetAlertHandler({ title: "Error", text: 'Confirm password not match with password', type: 'error' })
-                        }
-                    }
-                    else if(this.state.isSystemUser){
-                        this.sweetAlertHandler({ title: "Error", text: 'Please enter password and confirm password', type: 'error' })
-                    }
-                    else {
-                        this.props.saveSingleUser(formData);
-                    }
-
-            }
-            else
-            {
-                this.sweetAlertHandler({ title: "Error", text: 'Please fill all required fileds', type: 'error' })
-            }
-
-        }
-        else{
-                Swal.showLoading();
-
-                const formData = new FormData()
-
-                formData.append('ID', this.state.userObj.ID)
-                formData.append('EmployeeNumber', this.state.userObj.EmployeeNumber)
-                formData.append('FirstName', this.state.userObj.FirstName)
-                formData.append('MiddleName', this.state.userObj.MiddleName)
-                formData.append('LastName', this.state.userObj.LastName)
-                formData.append('IsUser', this.state.isSystemUser ? true : false)
-                formData.append('IsLocked', false)
-                formData.append('IsActive', true)
-
-                if(this.state.isSystemUser) {
+                if (this.state.isSystemUser && !isEmpty(this.state.userObj.Password) && !isEmpty(this.state.userObj.ConfPassword)) {
                     formData.append('UserName', this.state.userObj.UserName)
-                    formData.append('IsAdmin', this.state.userObj.UserRole === "Admin" ? true : false) 
-                    if(!isEmpty(this.state.userObj.Password) && !isEmpty(this.state.userObj.ConfPassword))
-                    {
-                        formData.append('Password', this.state.userObj.Password)
-         
-                        if(this.state.userObj.Password === this.state.userObj.ConfPassword){ 
-                            this.props.updateSingleUser(formData);
-                        }
-                        else {
-                            this.sweetAlertHandler({ title: "Error", text: 'Confirm password not match with password', type: 'error' })
-                        }
+                    formData.append('Password', this.state.userObj.Password)
+                    formData.append('IsAdmin', this.state.userObj.UserRole === "Admin" ? true : false)
+
+                    if (this.state.userObj.Password === this.state.userObj.ConfPassword) {
+                        this.props.saveSingleUser(formData);
+                    } else {
+                        this.sweetAlertHandler({
+                            title: "Error",
+                            text: 'Confirm password not match with password',
+                            type: 'error'
+                        })
                     }
-                    else {
-                        this.props.updateSingleUser(formData);
-                    }
+                } else if (this.state.isSystemUser) {
+                    this.sweetAlertHandler({
+                        title: "Error",
+                        text: 'Please enter password and confirm password',
+                        type: 'error'
+                    })
+                } else {
+                    this.props.saveSingleUser(formData);
                 }
-                else {
+
+            } else {
+                this.sweetAlertHandler({title: "Error", text: 'Please fill all required fileds', type: 'error'})
+            }
+
+        } else {
+            Swal.showLoading();
+
+            const formData = new FormData()
+
+            formData.append('ID', this.state.userObj.ID)
+            formData.append('EmployeeNumber', this.state.userObj.EmployeeNumber)
+            formData.append('FirstName', this.state.userObj.FirstName)
+            formData.append('MiddleName', this.state.userObj.MiddleName)
+            formData.append('LastName', this.state.userObj.LastName)
+            formData.append('IsUser', this.state.isSystemUser ? true : false)
+            formData.append('IsLocked', false)
+            formData.append('IsActive', true)
+
+            if (this.state.isSystemUser) {
+                formData.append('UserName', this.state.userObj.UserName)
+                formData.append('IsAdmin', this.state.userObj.UserRole === "Admin" ? true : false)
+                if (!isEmpty(this.state.userObj.Password) && !isEmpty(this.state.userObj.ConfPassword)) {
+                    formData.append('Password', this.state.userObj.Password)
+
+                    if (this.state.userObj.Password === this.state.userObj.ConfPassword) {
+                        this.props.updateSingleUser(formData);
+                    } else {
+                        this.sweetAlertHandler({
+                            title: "Error",
+                            text: 'Confirm password not match with password',
+                            type: 'error'
+                        })
+                    }
+                } else {
                     this.props.updateSingleUser(formData);
                 }
+            } else {
+                this.props.updateSingleUser(formData);
+            }
         }
     }
 
+
     render() {
-        const { isSearch, isAdd, userObj, isEditUserCode, isSystemUser } = this.state;
+        const {isSearch, isAdd, userObj, isEditUserCode, isSystemUser , vesselList} = this.state;
         const columns = this.columns.map(col => {
             if (!col.editable) {
                 return col
@@ -332,101 +350,167 @@ class user extends Component {
                 <Row>
                     <Col>
                         {isSearch &&
-                        <Card title='Search User'>
-                            <Form.Row>
-                                <Form.Group as={Col} md="3">
-                                    <Form.Label>User Code</Form.Label>
-                                    <Form.Control type="text" id="EmployeeNumber" placeholder="User Code" />
-                                </Form.Group>
-                                <Form.Group as={Col} md="3">
-                                    <Form.Label>User Name</Form.Label>
-                                    <Form.Control type="text" id="UserName" placeholder="User Name" />
-                                </Form.Group>
-                                <Form.Group as={Col} md="3">
-                                    <Form.Label>Full Name</Form.Label>
-                                    <Form.Control type="text" id="FullName" placeholder="Full Name" />
-                                </Form.Group>
-                                <Form.Group as={Col} md="3">
-                                    <Form.Label>User Role</Form.Label>
-                                    <Form.Control type="text" id="IsAdmin" placeholder="User Role" />
-                                </Form.Group>
-                            </Form.Row>
-                            <Form.Row>
-                                <Form.Group as={Col} md="12">
-                                    <center>
-                                        <Button type={"button"} style={{ minWidth: '200px' }} variant={'info'} className={'m-3'} disabled>Search</Button>
-                                        <Button style={{ minWidth: '200px' }} variant={'dark'} className={'m-3'} disabled>Clear</Button>
-                                    </center>
-                                </Form.Group>
-                            </Form.Row>
-                        </Card>
+                            <Card title='Search User'>
+                                <Form.Row>
+                                    <Form.Group as={Col} md="3">
+                                        <Form.Label>User Code</Form.Label>
+                                        <Form.Control type="text" id="EmployeeNumber" placeholder="User Code"/>
+                                    </Form.Group>
+                                    <Form.Group as={Col} md="3">
+                                        <Form.Label>User Name</Form.Label>
+                                        <Form.Control type="text" id="UserName" placeholder="User Name"/>
+                                    </Form.Group>
+                                    <Form.Group as={Col} md="3">
+                                        <Form.Label>Full Name</Form.Label>
+                                        <Form.Control type="text" id="FullName" placeholder="Full Name"/>
+                                    </Form.Group>
+                                    <Form.Group as={Col} md="3">
+                                        <Form.Label>User Role</Form.Label>
+                                        <Form.Control type="text" id="IsAdmin" placeholder="User Role"/>
+                                    </Form.Group>
+                                </Form.Row>
+                                <Form.Row>
+                                    <Form.Group as={Col} md="12">
+                                        <center>
+                                            <Button type={"button"} style={{minWidth: '200px'}} variant={'info'}
+                                                    className={'m-3'} disabled>Search</Button>
+                                            <Button style={{minWidth: '200px'}} variant={'dark'} className={'m-3'}
+                                                    disabled>Clear</Button>
+                                        </center>
+                                    </Form.Group>
+                                </Form.Row>
+                            </Card>
                         }
                         {isAdd &&
-                        <Card title='Manage User'>
-                            <Form.Row>
-                                <Form.Group style={{display:'none'}}>
-                                                <Form.Label>ID</Form.Label>
-                                                <Form.Control type="text" id="ID" name="ID" onChange={(e) => this.handleFormChange(e, 'userObj')} value={userObj.ID}/>
-                                </Form.Group>
-                                <Form.Group as={Col} md="3">
-                                    <Form.Label>User Code</Form.Label>
-                                    <Form.Control type="text" id="EmployeeNumber" name="EmployeeNumber" placeholder="User Code" onChange={(e) => this.handleFormChange(e, 'userObj')} value={userObj.EmployeeNumber} disabled={!isEditUserCode} />
-                                </Form.Group>
-                                <Form.Group as={Col} md="3">
-                                    <Form.Label>First Name</Form.Label>
-                                    <Form.Control type="text" id="FirstName" name="FirstName" placeholder="First Name" onChange={(e) => this.handleFormChange(e, 'userObj')} value={userObj.FirstName}/>
-                                </Form.Group>
-                                <Form.Group as={Col} md="3">
-                                    <Form.Label>Middle Name</Form.Label>
-                                    <Form.Control type="text" id="MiddleName" name="MiddleName" placeholder="Middle Name" onChange={(e) => this.handleFormChange(e, 'userObj')} value={userObj.MiddleName}/>
-                                </Form.Group>
-                                <Form.Group as={Col} md="3">
-                                    <Form.Label>Last Name</Form.Label>
-                                    <Form.Control type="text" id="LastName" name="LastName" placeholder="Last Name" onChange={(e) => this.handleFormChange(e, 'userObj')} value={userObj.LastName}/>
-                                </Form.Group>
-                                {!isSystemUser && 
-                                    <Button className='btn btn-sm btn-info' onClick={(e) => this.handleIsSystemUser(e)}>Is System User</Button>
+                            <Card title='Manage User'>
+                                <Form.Row>
+                                    <Form.Group style={{display: 'none'}}>
+                                        <Form.Label>ID</Form.Label>
+                                        <Form.Control type="text" id="ID" name="ID"
+                                                      onChange={(e) => this.handleFormChange(e, 'userObj')}
+                                                      value={userObj.ID}/>
+                                    </Form.Group>
+                                    <Form.Group as={Col} md="3">
+                                        <Form.Label>User Code</Form.Label>
+                                        <Form.Control type="text" id="EmployeeNumber" name="EmployeeNumber"
+                                                      placeholder="User Code"
+                                                      onChange={(e) => this.handleFormChange(e, 'userObj')}
+                                                      value={userObj.EmployeeNumber} disabled={!isEditUserCode}/>
+                                    </Form.Group>
+                                    <Form.Group as={Col} md="3">
+                                        <Form.Label>First Name</Form.Label>
+                                        <Form.Control type="text" id="FirstName" name="FirstName"
+                                                      placeholder="First Name"
+                                                      onChange={(e) => this.handleFormChange(e, 'userObj')}
+                                                      value={userObj.FirstName}/>
+                                    </Form.Group>
+                                    <Form.Group as={Col} md="3">
+                                        <Form.Label>Middle Name</Form.Label>
+                                        <Form.Control type="text" id="MiddleName" name="MiddleName"
+                                                      placeholder="Middle Name"
+                                                      onChange={(e) => this.handleFormChange(e, 'userObj')}
+                                                      value={userObj.MiddleName}/>
+                                    </Form.Group>
+                                    <Form.Group as={Col} md="3">
+                                        <Form.Label>Last Name</Form.Label>
+                                        <Form.Control type="text" id="LastName" name="LastName" placeholder="Last Name"
+                                                      onChange={(e) => this.handleFormChange(e, 'userObj')}
+                                                      value={userObj.LastName}/>
+                                    </Form.Group>
+                                    {!isSystemUser &&
+                                        <Button className='btn btn-sm btn-info'
+                                                onClick={(e) => this.handleIsSystemUser(e)}>Is System User</Button>
+                                    }
+                                    {isSystemUser &&
+                                        <Button className='btn btn-sm btn-dark'
+                                                onClick={(e) => this.handleIsNormalUser(e)}>Is Normal User</Button>
+                                    }
+                                </Form.Row>
+                                {isSystemUser &&
+                                    <>
+                                        <hr/>
+                                        <Form.Row>
+                                            <Form.Group as={Col} md="3">
+                                                <Form.Label>Username</Form.Label>
+                                                <Form.Control type="text" id="UserName" name="UserName"
+                                                              placeholder="Username"
+                                                              onChange={(e) => this.handleFormChange(e, 'userObj')}
+                                                              value={userObj.UserName}/>
+                                            </Form.Group>
+                                            <Form.Group as={Col} md="3">
+                                                <Form.Label>Password</Form.Label>
+                                                <Form.Control type="password" id="Password" name="Password"
+                                                              placeholder="Password"
+                                                              onChange={(e) => this.handleFormChange(e, 'userObj')}/>
+                                            </Form.Group>
+                                            <Form.Group as={Col} md="3">
+                                                <Form.Label>Confirm Password</Form.Label>
+                                                <Form.Control type="password" id="ConfPassword" name="ConfPassword"
+                                                              placeholder="Confirm Password"
+                                                              onChange={(e) => this.handleFormChange(e, 'userObj')}/>
+                                            </Form.Group>
+                                            <Form.Group as={Col} md="3">
+                                                <Form.Label>User Role</Form.Label>
+                                                <select className="form-control add_task_todo"
+                                                        onChange={(e) => this.handleFormChange(e, 'userObj')}
+                                                        name="UserRole" id="UserRole" value={userObj.UserRole}>
+                                                    <option value=''>Select User Role</option>
+                                                    <option value='Admin'>Admin</option>
+                                                    <option value='User'>User</option>
+                                                </select>
+                                            </Form.Group>
+                                            <Form.Group as={Col} md="3">
+                                                <Form.Label>Vessel</Form.Label>
+                                                {/*TODO form  userobj*/}
+                                                <select className="form-control add_task_todo"
+                                                        onChange={(e) => this.handleFormChange(e, 'dataObj')}
+                                                        name="vesselName" id="vesselName" value={userObj.UserRole}>
+                                                    {/*onClick={this.handleLoadVessel}*/}
+                                                    <option value=''>Select Vessel Name</option>
+                                                    {!isEmpty(vesselList) && vesselList.map((vessel, key) => {
+                                                        return <option key={key}
+                                                                       value={vessel.ID}>{vessel.VesselName}</option>;
+                                                    })}
+                                                </select>
+                                            </Form.Group>
+                                            {/*<ul className="nav">*/}
+                                            {/*    <li className="nav-item f-text active">*/}
+                                            {/*        <a className="nav-link text-secondary">Load Vessel: <span*/}
+                                            {/*            className="sr-only">(current)</span></a>*/}
+                                            {/*    </li>*/}
+                                            {/*    <li className="nav-item f-text active">*/}
+                                            {/*        <div className="input-group">*/}
+                                            {/*            <select className="form-control add_task_todo"*/}
+                                            {/*                    onChange={(e) => this.handleFormChange(e, 'dataObj')}*/}
+                                            {/*                    name="vesselName" id="vesselName">*/}
+                                            {/*                <option value=''>Select Vessel Name</option>*/}
+                                            {/*                {!isEmpty(vesselList) && vesselList.map((vessel, key) => {*/}
+                                            {/*                    return <option key={key}*/}
+                                            {/*                                   value={vessel.ID}>{vessel.VesselName}</option>;*/}
+                                            {/*                })}*/}
+                                            {/*            </select>*/}
+                                            {/*            <div className="input-group-append">*/}
+                                            {/*                <button className="btn btn-primary btn-msg-send"*/}
+                                            {/*                        type="button" onClick={this.handleLoadVessel}><i*/}
+                                            {/*                    className="fa fa-ship"/></button>*/}
+                                            {/*            </div>*/}
+                                            {/*        </div>*/}
+                                            {/*    </li>*/}
+                                            {/*</ul>*/}
+                                        </Form.Row>
+                                    </>
                                 }
-                                {isSystemUser && 
-                                    <Button className='btn btn-sm btn-dark' onClick={(e) => this.handleIsNormalUser(e)}>Is Normal User</Button>
-                                }
-                            </Form.Row>
-                            {isSystemUser && 
-                            <>
-                            <hr />
-                            <Form.Row>
-                                <Form.Group as={Col} md="3">
-                                    <Form.Label>Username</Form.Label>
-                                    <Form.Control type="text" id="UserName" name="UserName" placeholder="Username" onChange={(e) => this.handleFormChange(e, 'userObj')} value={userObj.UserName}/>
-                                </Form.Group>
-                                <Form.Group as={Col} md="3">
-                                    <Form.Label>Password</Form.Label>
-                                    <Form.Control type="password" id="Password" name="Password" placeholder="Password" onChange={(e) => this.handleFormChange(e, 'userObj')}/>
-                                </Form.Group>
-                                <Form.Group as={Col} md="3">
-                                    <Form.Label>Confirm Password</Form.Label>
-                                    <Form.Control type="password" id="ConfPassword" name="ConfPassword" placeholder="Confirm Password" onChange={(e) => this.handleFormChange(e, 'userObj')}/>
-                                </Form.Group>
-                                <Form.Group as={Col} md="3">
-                                    <Form.Label>User Role</Form.Label>
-                                    <select className="form-control add_task_todo" onChange={(e) => this.handleFormChange(e, 'userObj')} name="UserRole" id="UserRole"  value={userObj.UserRole}>
-                                        <option value=''>Select User Role</option>
-                                        <option value='Admin'>Admin</option>
-                                        <option value='User'>User</option>
-                                    </select>
-                                </Form.Group>
-                            </Form.Row>
-                            </>
-                            }
-                            <Form.Row>
-                                <Form.Group as={Col} md="12">
-                                    <center>
-                                        <Button type={"button"} style={{ minWidth: '200px' }} variant={'info'} className={'m-3'} onClick={this.handleSubmit}>Save</Button>
-                                        <Button style={{ minWidth: '200px' }} variant={'dark'} className={'m-3'} onClick={(e) => this.handleCloseAddUser(e)}>Cancel</Button>
-                                    </center>
-                                </Form.Group>
-                            </Form.Row>
-                        </Card>
+                                <Form.Row>
+                                    <Form.Group as={Col} md="12">
+                                        <center>
+                                            <Button type={"button"} style={{minWidth: '200px'}} variant={'info'}
+                                                    className={'m-3'} onClick={this.handleSubmit}>Save</Button>
+                                            <Button style={{minWidth: '200px'}} variant={'dark'} className={'m-3'}
+                                                    onClick={(e) => this.handleCloseAddUser(e)}>Cancel</Button>
+                                        </center>
+                                    </Form.Group>
+                                </Form.Row>
+                            </Card>
                         }
                     </Col>
                 </Row>
@@ -441,7 +525,8 @@ class user extends Component {
                                 </li>
                             </ul>
                             <div className="nav-item nav-grid f-view">
-                                <Button type={"button"} style={{ minWidth: '200px' }} variant={'info'} onClick={(e) => this.handleAddUser(e)}>Add User</Button>
+                                <Button type={"button"} style={{minWidth: '200px'}} variant={'info'}
+                                        onClick={(e) => this.handleAddUser(e)}>Add User</Button>
                             </div>
                         </nav>
                     </Col>
@@ -462,7 +547,7 @@ class user extends Component {
                                 data={this.state.data}
                             />
                         </Card>
-                        
+
                     </Col>
                 </Row>
             </Aux>
@@ -470,18 +555,24 @@ class user extends Component {
     }
 }
 
+
+
 const mapStateToProps = state => ({
     userList: state.userList,
     recordSaveStatus: state.recordSaveStatus,
     recordUpdateStatus: state.recordUpdateStatus,
-    error: state.error
+    error: state.error,
+    vesselList: state.vesselList,
 });
 
 const mapDispatchToProps = dispath => ({
     getAllUserList: (userList) => dispath(getAllUserList(userList)),
     saveSingleUser: (userObj) => dispath(saveSingleUser(userObj)),
     updateSingleUser: (userObj) => dispath(updateSingleUser(userObj)),
-    deletUser: (data) => dispath(deletUser(data))
+    deletUser: (data) => dispath(deletUser(data)),
+    getAllVesselList: (vesselList) => dispath(getAllVesselList(vesselList)),
+
 });
 
-export default connect(mapStateToProps, mapDispatchToProps) (user);
+
+export default connect(mapStateToProps, mapDispatchToProps)(user);

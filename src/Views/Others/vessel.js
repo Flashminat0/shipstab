@@ -327,6 +327,7 @@ class vessel extends Component {
                                     <Form.Label>Upload Config File</Form.Label>
                                     <Form.Control
                                         type="file"
+                                        accept=".geo"
                                         id="configFile"
                                         name="configFile"
                                         onChange={(e) => this.handleFormChange(e, 'vesselObj')}
@@ -336,6 +337,7 @@ class vessel extends Component {
                                     <Form.Label>Upload Loading Condition File</Form.Label>
                                     <Form.Control
                                         type="file"
+                                        accept=".lod"
                                         id="loadingConditionFile"
                                         name="loadingConditionFile"
                                         onChange={(e) => this.handleFormChange(e, 'vesselObj')}
