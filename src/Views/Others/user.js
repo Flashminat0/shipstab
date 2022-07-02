@@ -233,9 +233,7 @@ class user extends Component {
                 Password: '',
                 ConfPassword: '',
                 UserRole: '',
-                vessel : {
-
-                }
+                Vessel :''
             },
             isEditUserCode: true,
             isSystemUser: false
@@ -261,7 +259,7 @@ class user extends Component {
                 formData.append('IsUser', this.state.isSystemUser ? true : false)
                 formData.append('IsLocked', false)
                 formData.append('IsActive', true)
-                formData.append('vessel', this.state.userObj.vessel.ID)
+                formData.append('Vessel', this.state.userObj.Vessel)
 
                 if (this.state.isSystemUser && !isEmpty(this.state.userObj.Password) && !isEmpty(this.state.userObj.ConfPassword)) {
                     formData.append('UserName', this.state.userObj.UserName)
@@ -304,6 +302,7 @@ class user extends Component {
             formData.append('IsUser', this.state.isSystemUser ? true : false)
             formData.append('IsLocked', false)
             formData.append('IsActive', true)
+            formData.append('Vessel', this.state.userObj.Vessel)
 
             if (this.state.isSystemUser) {
                 formData.append('UserName', this.state.userObj.UserName)
@@ -327,11 +326,13 @@ class user extends Component {
                 this.props.updateSingleUser(formData);
             }
         }
+
+
     }
 
 
     render() {
-        const {isSearch, isAdd, userObj, isEditUserCode, isSystemUser , vesselList} = this.state;
+        const {isSearch, isAdd, userObj, isEditUserCode, isSystemUser , vesselList , Vessel} = this.state;
         const columns = this.columns.map(col => {
             if (!col.editable) {
                 return col
@@ -344,6 +345,7 @@ class user extends Component {
                 })
             }
         })
+
 
         return (
             <Aux>
@@ -461,10 +463,9 @@ class user extends Component {
                                             </Form.Group>
                                             <Form.Group as={Col} md="3">
                                                 <Form.Label>Vessel</Form.Label>
-                                                {/*TODO form  userobj*/}
                                                 <select className="form-control add_task_todo"
-                                                        onChange={(e) => this.handleFormChange(e, 'dataObj')}
-                                                        name="vesselName" id="vesselName" value={userObj.UserRole}>
+                                                        onChange={(e) => this.handleFormChange(e, 'userObj')}
+                                                        name="Vessel" id="Vessel" value={userObj.vesselName}>
                                                     {/*onClick={this.handleLoadVessel}*/}
                                                     <option value=''>Select Vessel Name</option>
                                                     {!isEmpty(vesselList) && vesselList.map((vessel, key) => {
@@ -473,30 +474,6 @@ class user extends Component {
                                                     })}
                                                 </select>
                                             </Form.Group>
-                                            {/*<ul className="nav">*/}
-                                            {/*    <li className="nav-item f-text active">*/}
-                                            {/*        <a className="nav-link text-secondary">Load Vessel: <span*/}
-                                            {/*            className="sr-only">(current)</span></a>*/}
-                                            {/*    </li>*/}
-                                            {/*    <li className="nav-item f-text active">*/}
-                                            {/*        <div className="input-group">*/}
-                                            {/*            <select className="form-control add_task_todo"*/}
-                                            {/*                    onChange={(e) => this.handleFormChange(e, 'dataObj')}*/}
-                                            {/*                    name="vesselName" id="vesselName">*/}
-                                            {/*                <option value=''>Select Vessel Name</option>*/}
-                                            {/*                {!isEmpty(vesselList) && vesselList.map((vessel, key) => {*/}
-                                            {/*                    return <option key={key}*/}
-                                            {/*                                   value={vessel.ID}>{vessel.VesselName}</option>;*/}
-                                            {/*                })}*/}
-                                            {/*            </select>*/}
-                                            {/*            <div className="input-group-append">*/}
-                                            {/*                <button className="btn btn-primary btn-msg-send"*/}
-                                            {/*                        type="button" onClick={this.handleLoadVessel}><i*/}
-                                            {/*                    className="fa fa-ship"/></button>*/}
-                                            {/*            </div>*/}
-                                            {/*        </div>*/}
-                                            {/*    </li>*/}
-                                            {/*</ul>*/}
                                         </Form.Row>
                                     </>
                                 }

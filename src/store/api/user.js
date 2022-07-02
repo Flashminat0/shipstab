@@ -111,7 +111,9 @@ export const updateSingleUser = (data) => dispath => {
             dispath(error('API Error. Please contact administrator.'));
             dispath(clearAll());
         }
-    }); 
+    });
+
+
 }
 
 export const deletUser = (data) => dispath => {
